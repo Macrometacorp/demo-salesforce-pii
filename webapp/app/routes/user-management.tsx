@@ -97,11 +97,12 @@ export default () => {
   } = useOutletContext<Context>();
 
   const fetchers = useFetchers();
-
-  const actionData = fetchers?.[0]?.data || useActionData();
+  const action = useActionData();
 
   const allUserData = useLoaderData();
   const transition = useTransition();
+
+  const actionData = fetchers?.[0]?.data || action;
 
   const userData = allUserData.filter((user: UserData) => !!user?.name?.trim());
   const [activeRow, setActiveRow] = useState("");
