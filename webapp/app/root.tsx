@@ -19,7 +19,7 @@ export function links() {
 }
 
 export const meta: MetaFunction = () => {
-  return { title: "User Management Portal" };
+  return { title: "Salesforce Dashboard" };
 };
 
 export default function App() {

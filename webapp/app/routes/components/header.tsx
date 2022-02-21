@@ -15,7 +15,7 @@ export default (props: HeaderProps) => {
               alt="Macrometa Image"
               className="object-scale-down h-20 w-96 mx-auto"
             />
-            <div className="text-center">User Management Portal</div>
+            <div className="text-center">Salesforce Dashboard</div>
           </Link>
         </div>
       </div>
