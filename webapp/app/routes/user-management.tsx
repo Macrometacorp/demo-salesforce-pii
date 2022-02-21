@@ -4,7 +4,9 @@ import {
   LoaderFunction,
   useActionData,
   useCatch,
+  useFetchers,
   useLoaderData,
+  useOutletContext,
   useTransition,
 } from "remix";
 import * as queryString from "query-string";
@@ -19,7 +21,7 @@ import {
   AppPaths,
 } from "~/constants";
 
-import { UserData, UserManagementActionResult } from "~/interfaces";
+import { Context, UserData, UserManagementActionResult } from "~/interfaces";
 import { isLoggedIn } from "~/utilities/utils";
 
 import EditModal from "./components/modals/editModal";
@@ -90,7 +92,13 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default () => {
-  const actionData = useActionData();
+  const {
+    addContactModal: { showAddContactModal, setShowAddContactModal },
+  } = useOutletContext<Context>();
+
+  const fetchers = useFetchers();
+
+  const actionData = fetchers?.[0]?.data;
   const allUserData = useLoaderData();
   const transition = useTransition();
 
@@ -251,7 +259,12 @@ export default () => {
           }}
         />
       )}
-      <AddContactModal />
+      <AddContactModal
+        showModal={showAddContactModal}
+        onModalClose={() => {
+          setShowAddContactModal(false);
+        }}
+      />
       {showDecryptModal && (
         <DecryptedModal
           modalUserDetails={modalUserDetails}

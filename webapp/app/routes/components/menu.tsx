@@ -10,10 +10,11 @@ import {
 import { useEffect, useState } from "react";
 import ContactSVG from "../components/svgs/contact";
 import UploadSVG from "../components/svgs/upload";
+import { HeaderProps } from "~/interfaces";
 
 const FILE_SELECTOR_ID = "file-selector";
 
-export default () => {
+export default ({ setShowAddContactModal }: HeaderProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const submit = useSubmit();
   const [search, setSearch] = useState("");
@@ -90,7 +91,7 @@ export default () => {
                 className="btn btn-square btn-ghost tooltip"
                 data-tip="Add Contact"
                 onClick={() => {
-                  window.location.href = ModalPaths.AddContactModal;
+                  setShowAddContactModal(true);
                 }}
               >
                 <ContactSVG />

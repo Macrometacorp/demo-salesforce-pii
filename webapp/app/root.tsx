@@ -11,6 +11,8 @@ import type { MetaFunction } from "remix";
 
 import Header from "./routes/components/header";
 import styles from "./tailwind.css";
+import { useState } from "react";
+import { Context } from "./interfaces";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
@@ -21,6 +23,12 @@ export const meta: MetaFunction = () => {
 };
 
 export default function App() {
+  const [showAddContactModal, setShowAddContactModal] = useState(false);
+
+  const context: Context = {
+    addContactModal: { showAddContactModal, setShowAddContactModal },
+  };
+
   return (
     <html lang="en">
       <head>
@@ -30,8 +38,8 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Header />
-        <Outlet />
+        <Header setShowAddContactModal={setShowAddContactModal} />
+        <Outlet context={context} />
         <ScrollRestoration />
         <Scripts />
         {process.env.NODE_ENV === "development" && <LiveReload />}

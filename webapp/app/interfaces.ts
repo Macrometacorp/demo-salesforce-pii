@@ -72,3 +72,14 @@ interface UserManagementActionFail {
 export type UserManagementActionResult =
   | UserManagementActionSuccess
   | UserManagementActionFail;
+
+export interface Context {
+  addContactModal: {
+    showAddContactModal: boolean;
+    setShowAddContactModal: (show: boolean) => void;
+  };
+}
+
+export interface HeaderProps {
+  setShowAddContactModal: (show: boolean) => void;
+}

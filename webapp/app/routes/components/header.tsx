@@ -1,8 +1,9 @@
 import { Link } from "remix";
 import { AppPaths } from "~/constants";
+import { HeaderProps } from "~/interfaces";
 import Menu from "./menu";
 
-export default () => {
+export default (props: HeaderProps) => {
   return (
     <div className="navbar mb-2 shadow-lg bg-primary text-neutral-content box h-32">
       <div className="flex-1"></div>
@@ -19,7 +20,7 @@ export default () => {
         </div>
       </div>
       <div className="flex-1 justify-end">
-        <Menu />
+        <Menu {...props} />
       </div>
     </div>
   );
