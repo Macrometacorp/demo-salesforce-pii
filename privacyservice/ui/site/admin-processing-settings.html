@@ -1,0 +1,634 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Data Bunker - admin / view user requests</title>
+  <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/solid.min.css' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+    integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link rel="stylesheet" href="css/bootstrap-table.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="conf.js"></script>
+  <script src="site.js"></script>
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/bootstrap-table.min.js"></script>
+  
+  <script>
+    var xtoken = window.localStorage.getItem('xtoken');
+    var legalBasisList = [];
+    var processingActivitiesList = [];
+	
+    $(function () {
+        showAdminMenu();
+	  $('#table2').bootstrapTable({
+        url: "/v1/lbasis",
+        undefinedText: 'n/a',
+        /* url: "data1.json", */
+        method: "GET",
+        ajaxOptions: {
+          headers: { "X-Bunker-Token": xtoken },
+          crossDomain: true
+        },
+        showExtendedPagination: true,
+        sidePagination: "server",
+        pagination: false,
+        search: false,
+        classes: "table",
+		onLoadSuccess: function(data, status, res) {
+			legalBasisList = data.rows;
+		},
+        onLoadError: function (status, res) {
+          if (status > 400 && status < 500) {
+            document.location = "/";
+          }
+        }
+      });
+      $('#table').bootstrapTable({
+        url: "/v1/pactivity",
+        undefinedText: 'n/a',
+        method: "GET",
+        ajaxOptions: {
+          headers: { "X-Bunker-Token": xtoken },
+          crossDomain: true
+        },
+        showExtendedPagination: true,
+        sidePagination: "server",
+        pagination: false,
+        search: false,
+        classes: "table",
+		onLoadSuccess: function(data, status, res) {
+			processingActivitiesList = data.rows;
+		},
+        onLoadError: function (status, res) {
+          if (status > 400 && status < 500) {
+            document.location = "/";
+          }
+        }
+      });
+	  //loadLegalBasisList();
+    });
+	function loadLegalBasisList() {
+		var xhr0 = new XMLHttpRequest();
+		xhr0.open('GET', '/v1/lbasis', true);
+		xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+		xhr0.setRequestHeader('Content-type', 'application/json');
+		xhr0.onload = function () {
+			if (xhr0.status === 200) {
+				var data = JSON.parse(xhr0.responseText);
+				legalBasisList = data.rows;
+			}
+		}
+		xhr0.send();
+	}
+	function getModules() {
+		const modules = {};
+		for (idx = 0; idx < legalBasisList.length; idx++) {
+			const row = legalBasisList[idx];
+			modules[row.module] = row.module;
+		}
+		modules["checkout-page"] = "checkout-page";
+		modules["cookie-popup"] = "cookie-popup";
+		modules["signup-page"] = "signup-page";
+		modules["login-page"] = "login-page";
+		modules["other"] = "other";
+		return modules;
+	}
+	function getModulesOptions(current) {
+		const modules = getModules();
+		var msg = "";
+		for (var m in modules) {
+			if (current === m) {
+				msg = msg + '<option selected>'+m+'</option>';
+			} else {
+				msg = msg + '<option>'+m+'</option>';
+			}
+		}
+		return msg;
+	}
+	function linkExisting(activity, briefs_str) {
+		var existing = {};
+		for (jdx = 0; jdx < processingActivitiesList.length; jdx++) {
+			if (processingActivitiesList[jdx].activity == activity) {
+				var briefs = processingActivitiesList[jdx].briefs;
+				if (briefs) {
+					for (idx = 0; idx < briefs.length; idx++) {
+						var b = briefs[idx];
+						existing[b["brief"]] = b["brief"];
+					}
+				}
+				break;
+			}
+		}
+		var msg = '<form>';
+		for (idx = 0; idx < legalBasisList.length; idx++) {
+			const row = legalBasisList[idx];
+			msg += '<div class="form-check"><input type="checkbox" onclick="linkLegalBasis(this.checked,\''+activity+'\',\''+row.brief+'\');" class="form-check-input" id="cb-'+row.brief+'" ';
+			if (existing[row.brief]) {
+				msg += 'checked';
+			}
+			msg += '><label class="form-check-label" for="cb-'+row.brief+'">';
+			msg += row['basistype'] + " : " + row["brief"] + "<br/>\n";
+			msg += "Module: " + row["module"] + "<br/>\n";				msg += "Status: " + row["status"] + "<br/>\n";
+			msg += "Required to enable to continue? " + (row["requiredflag"] ? "yes" : "no")  + "<br/>\n";
+			msg += "User can change by himself?" + (row["usercontrol"] ? "yes" : "no")  + "<br/>\n";
+			msg += "Desc: " + row["shortdesc"];
+			msg += '</label></div>';
+		}
+		msg += "</form>";
+		showForm('Change '+activity, msg);
+	}
+	function linkLegalBasis(checked, activity, brief) {
+		var url = '/v1/pactivity/'+activity+'/'+brief;
+		var xhr0 = new XMLHttpRequest();
+		if (checked) {
+			xhr0.open('POST', url, true);
+		} else {
+			xhr0.open('DELETE', url, true);
+		}
+		xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+		xhr0.setRequestHeader('Content-type', 'application/json');
+		xhr0.onload = function () {
+			if (xhr0.status === 200) {
+				$('#table').bootstrapTable('refresh');
+			}
+		}
+		xhr0.send();
+		return true;
+	}
+	function displayActivity(activity, row, index) {
+		return '<i class="fas fa-cogs"></i>&nbsp;'+activity;
+	}
+	function displayBrief(brief, row, index) {
+		return '<i class="fas fa-cog"></i>&nbsp;'+brief;
+	}
+	function displayDescription(scr, row, index) {
+		var msg = "Title: " + row.title + "<br/>\n";
+		msg = msg +	"Desc: "+row.fulldesc+"</br>\n";
+		if (row.script) {
+            msg = msg + "JS script attached: yes<br/>\n";
+		}
+		if (row.applicableto) {
+            msg = msg + "Applicable to: "+row.applicableto+"<br/>\n";
+		}
+		return msg;
+	}
+	function displayLegalBasisDesc(scr, row, index) {
+		//var msg = "Type: " + row.basistype + "<br/>\n";
+		var msg = "";
+		if (row.status == "deleted") {
+			msg = "Status: <strong>"+row.status+"</strong></br>\n";
+		}
+		if (row.module) {
+			msg = msg +	"Module: "+row.module+"</br>\n";
+		}
+		if (row.requireflag) {
+            msg = msg + "Required: yes<br/>\n";
+		}
+		if (row.usercontrol) {
+            msg = msg + "User can change: yes<br/>\n";
+		}
+		msg = msg +	"Desc: "+row.fulldesc+"</br>\n";
+		return msg;	
+	}
+	function displayLegalBasis(briefs, row, index) {
+		var msg = "";
+		if (row.briefs) {
+			for (idx = 0; idx < briefs.length; idx++) {
+				b = briefs[idx];
+				msg = msg + b["basistype"]+":"+b["brief"] + "<br/>\n";
+			}
+		}
+		//console.log(row);
+		msg = msg + "<i class='fas fa-arrow-right'></i>&nbsp;<a href='javascript:linkExisting(\""+row.activity+"\",\""+row.legalbasis+"\");'>link existing</a><br/>\n";
+		msg = msg + "<i class='fas fa-arrow-right'></i>&nbsp;<a href='#'>create new</a><br/>\n";		
+		return msg;
+	}
+	function displayProcessingActions(scr, row, index) {
+		var links = "";
+		links = '<a href=\'javascript:deleteProcessingActivity(\"' + row.activity + '\");\'>delete</a>&nbsp;|&nbsp;';
+		links = links + '<a href=\'javascript:editProcessingActivity(\"' + row.activity + '\");\'>edit</a>';
+		return links;
+	}
+	function displayLegalBasisActions(brief, row, index) {
+		var links = "";
+		if (row.status !== "deleted") {
+			links = '<a href=\'javascript:deleteLegalBasis(\"' + brief + '\");\'>delete</a>&nbsp;|&nbsp;';
+		}
+		links = links + '<a href=\'javascript:editLegalBasis(\"' + brief + '\");\'>edit</a>';
+		return links;
+	}
+	function deleteProcessingActivity(activity) {
+        var heading = "Confirm processing operation deletion";
+        var question = "Are you sure want to delete "+activity+"?";
+        var cancelButtonTxt = "Close popup";
+        var okButtonTxt = "Remove processing operation";
+		var confirmModal =
+            $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+                '<div class="modal-header">' +
+                '<h5 class="modal-title">' + heading + '</h5>' +
+                '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                '<span aria-hidden="true">&times;</span></button>' +
+				'</div>' +
+                '<div class="modal-body">' +
+                '<p>' + question + '</p>' +
+                '</div>' +
+                '<div class="modal-footer">' +
+                '<a href="#" class="btn" data-dismiss="modal">' + 
+                cancelButtonTxt +
+                '</a>' +
+                '<a href="#" id="okButton" class="btn btn-warning">' +
+                okButtonTxt +
+                '</a>' +
+                '</div>' +
+                '</div></div></div>');
+        confirmModal.find('#okButton').click(function (event) {
+            //callback();
+            deleteProcessingActivityDo(activity);
+            confirmModal.modal('hide');
+        });
+        confirmModal.modal('show');
+	}
+	function deleteProcessingActivityDo(activity) {
+		var xhr0 = new XMLHttpRequest();
+		xhr0.open('DELETE', '/v1/pactivity/'+activity, true);
+		xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+		xhr0.setRequestHeader('Content-type', 'application/json');
+		xhr0.onload = function () {
+			if (xhr0.status === 200) {
+				$('#table').bootstrapTable('refresh');
+			}
+		}
+		xhr0.send();
+		return true;
+	}
+	function deleteLegalBasis(brief) {
+        var heading = "Confirm legal basis deletion";
+        var question = "Are you sure want to delete "+brief+"?";
+        var cancelButtonTxt = "Close popup";
+        var okButtonTxt = "Remove legal basis";
+		var confirmModal =
+            $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+                '<div class="modal-header">' +
+                '<h5 class="modal-title">' + heading + '</h5>' +
+                '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                '<span aria-hidden="true">&times;</span></button>' +
+				'</div>' +
+                '<div class="modal-body">' +
+                '<p>' + question + '</p>' +
+                '</div>' +
+                '<div class="modal-footer">' +
+                '<a href="#" class="btn" data-dismiss="modal">' + 
+                cancelButtonTxt +
+                '</a>' +
+                '<a href="#" id="okButton" class="btn btn-warning">' +
+                okButtonTxt +
+                '</a>' +
+                '</div>' +
+                '</div></div></div>');
+        confirmModal.find('#okButton').click(function (event) {
+            //callback();
+            deleteLegalBasisDo(brief);
+            confirmModal.modal('hide');
+        });
+        confirmModal.modal('show');
+	}
+	function deleteLegalBasisDo(brief) {
+		var xhr0 = new XMLHttpRequest();
+		xhr0.open('DELETE', '/v1/lbasis/'+brief, true);
+		xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+		xhr0.setRequestHeader('Content-type', 'application/json');
+		xhr0.onload = function () {
+			if (xhr0.status === 200) {
+				$('#table2').bootstrapTable('refresh');
+				$('#table').bootstrapTable('refresh');
+			}
+		}
+		xhr0.send();
+		return true;
+	}
+	function editProcessingActivity(activity) {
+		var title0 = "Create new Processing Operation";
+		if (activity) {
+			title0 = "Change Processing Operation";
+		}
+		var applicableto = "";
+		var fulldesc = "";
+		var title = "";
+		var code = "";
+		if (activity) {
+			for (jdx = 0; jdx < processingActivitiesList.length; jdx++) {
+				if (processingActivitiesList[jdx].activity === activity) {
+					applicableto = processingActivitiesList[jdx].applicableto;
+					fulldesc = processingActivitiesList[jdx].fulldesc;
+					title = processingActivitiesList[jdx].title;
+					code = processingActivitiesList[jdx].script;
+					break;
+				}
+			}
+		} else {
+			activity = "";
+		}
+        var form = `<form>
+            <div class="form-group row">
+				<label for="shortdesc" class="col-sm-3 col-form-label">Operation Unique Identifier <strong>*</strong></label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="activity" aria-describedby="activityHelp" placeholder="Enter unique identifier" value="`+activity+`">
+					<small id="activityHelp" class="form-text text-muted">Supported: a-z, 0-9, '-' chars. Start with a-z. Max 64 chars.</small>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="title" class="col-sm-3 col-form-label">Title</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="title" placeholder="Processing operation title" value="`+title+`">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="applicableto" class="col-sm-3 col-form-label">Applicable to</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="applicableto" placeholder="This activity is relevant for (ex. customers)" value="`+applicableto+`">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="fulldesc" class="col-sm-3 col-form-label0">Full desciption</label>
+				<div class="col-sm-9">
+					<textarea class="form-control" id="fulldesc" rows="2">`+fulldesc+`</textarea>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="code" class="col-sm-3 col-form-label">JS script</label>
+				<div class="col-sm-9">
+					<textarea class="form-control" id="code" rows="2">`+code+`</textarea>
+					<small id="scriptHelp" class="form-text text-muted">Enter JavaScript code to include on your site in case the user gave his consent. Can be used for example for Google Analytics code, etc...</small>
+				</div>
+			</div>
+			</form>`;
+		var btn = `<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>`;
+		var modal = showForm(title0, form, btn);
+		modal.find('#submitButton').click(function (event) {
+			var newActivity = modal.find('#activity').val();
+			if (!newActivity){
+				alert("Processing Operation Unique Identifier can not be empty");
+				return;
+			}
+			var msg = {};
+			msg["applicableto"] = modal.find('#applicableto').val();
+			msg["fulldesc"] = modal.find('#fulldesc').val();
+			msg["title"] = modal.find('#title').val();
+			msg["script"] = modal.find('#code').val();
+			if (!activity) {
+				activity = newActivity
+			} else {
+				msg["activity"] = newActivity;
+			}
+			var xhr0 = new XMLHttpRequest();
+			xhr0.open('POST', '/v1/pactivity/'+activity, true);
+			xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+			xhr0.setRequestHeader('Content-type', 'application/json');
+			xhr0.onload = function () {
+				if (xhr0.status === 200) {
+					$('#table').bootstrapTable('refresh');
+				}
+			}
+			xhr0.send(JSON.stringify(msg));
+            modal.modal('hide');
+        });
+	}
+    function editLegalBasis(brief) {
+		var title = "Create new Legal Basis record";
+		if (brief) {
+			title = "Change Legal Basis record";
+		} else {
+			brief = "";
+		}
+		var module = "";
+		var fulldesc = "";
+		var shortdesc = "";
+		var basistype = "";
+		var requiredmsg = "";
+		var usercontrol = false;
+		var requiredflag = false;
+		for (idx = 0; idx < legalBasisList.length; idx++) {
+			const row = legalBasisList[idx];
+			if (row.brief === brief) {
+				module = row.module;
+				fulldesc = row.fulldesc;
+				shortdesc = row.shortdesc;
+				basistype = row.basistype;
+				requiredmsg = row.requiredmsg;
+				usercontrol = row.usercontrol;
+				requiredflag = row.requiredflag;
+			}
+		}
+		const options = getModulesOptions(module);
+        var form = `<form>
+            <div class="form-group row">
+				<label for="shortdesc" class="col-sm-3 col-form-label">Brief Unique Identifier</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="brief" aria-describedby="briefHelp" placeholder="Enter unique identifier" value="`+brief+`">
+					<small id="briefHelp" class="form-text text-muted">Supported: a-z, 0-9, '-' chars. Start with a-z. Max 64 chars.</small>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="shortdesc" class="col-sm-3 col-form-label">Short description</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" id="shortdesc" placeholder="Enter short description" value="`+shortdesc+`">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="exampleFormControlTextarea1" class="col-sm-3 col-form-label">Full desciption</label>
+				<div class="col-sm-9">
+					<textarea class="form-control" id="fulldesc" rows="2">`+fulldesc+`</textarea>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="exampleFormControlSelect1" class="col-sm-3 col-form-label">Legal ground type</label>
+				<div class="col-sm-9">
+				<select class="form-control" id="basistype">
+				  <option>consent</option>
+				  <option>contract</option>
+				  <option>legal-requirement</option>
+				  <option>legitimate-interest</option>
+				  <option>vital-interest</option>
+				  <option>public-interest</option>
+				</select>
+				</div>
+            </div>
+			<div class="form-group row">
+				<label for="selectModule" class="col-sm-3 col-form-label">Show on Page/Module</label>
+				<div class="col-sm-9">
+				<select class="form-control" id="selectModule">`+options+`
+				</select>
+				<input style="display:none;margin-top:10px;" type="text" class="form-control" id="other" placeholder="Enter value">
+				</div>
+            </div>
+            <div class="form-check">
+				<input type="checkbox" class="form-check-input" id="usercontrol">
+				<label class="form-check-label" for="usercontrol">User can withdraw this consent/contract without Admin/DPO approval.</label>
+			</div>
+            <div class="form-check">
+				<input type="checkbox" class="form-check-input" id="requiredflag">
+				<label class="form-check-label" for="requiredflag">Required checkbox. Your user needs to approve this consent/contract when asked to get your service or product.</label>
+			</div>
+			<div class="form-group row" id="requiredForm">
+				<label for="requiredmsg" class="col-sm-3 col-form-label">Why it is required?</label>
+				<div class="col-sm-9">
+				<input type="text" class="form-control" id="requiredmsg" placeholder="Enter custom explanation message why it is required" value="`+requiredmsg+`">
+				</div>
+			</div>
+			</form>`;
+		var btn = `<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>`;
+		var modal = showForm(title, form, btn);
+		// setup current values
+		modal.find('#usercontrol').prop( "checked", usercontrol );
+		modal.find('#requiredflag').prop( "checked", requiredflag );
+		if (requiredflag) {
+			modal.find('#requiredForm').show();
+		} else {
+			modal.find('#requiredForm').hide();
+		}
+		if (basistype) {
+			modal.find('#basistype').val(basistype);
+		} else {
+			modal.find('#basistype').val("consent");
+		}
+		// callbacks
+		modal.find('#selectModule').change(function (event) {
+			const current = $( this ).val();
+			if (current === "other") {
+				modal.find('#other').show();
+			} else {
+				modal.find('#other').hide();
+			}
+		});
+		modal.find('#requiredflag').change(function (event) {
+			if(this.checked) {
+				modal.find('#requiredForm').show();
+			} else {
+				modal.find('#requiredForm').hide();
+			}
+		});
+		modal.find('#submitButton').click(function (event) {
+			var newBrief = modal.find('#brief').val();
+			if (!newBrief){
+				alert("Brief Unique Identifier can not be empty");
+				return;
+			}
+			const msg = {};
+			msg["requiredflag"] = modal.find('#requiredflag').prop("checked");
+			if (msg["requiredflag"]) {
+				msg["requiredmsg"] = modal.find('#requiredmsg').val();
+			}
+			msg["usercontrol"] = modal.find('#usercontrol').prop("checked");
+			msg["module"] = modal.find('#selectModule').val();
+			msg["basistype"] = modal.find('#basistype').val();
+			msg["shortdesc"] = modal.find('#shortdesc').val();
+			msg["fulldesc"] = modal.find('#fulldesc').val();
+			if (msg["module"] === "other") {
+				msg["module"] = modal.find('#other').val();
+			}
+			if (!brief) {
+				brief = newBrief
+			} else {
+				msg["brief"] = newBrief;
+			}
+			var xhr0 = new XMLHttpRequest();
+			xhr0.open('POST', '/v1/lbasis/'+brief, true);
+			xhr0.setRequestHeader("X-Bunker-Token", xtoken)
+			xhr0.setRequestHeader('Content-type', 'application/json');
+			xhr0.onload = function () {
+				if (xhr0.status === 200) {
+					$('#table2').bootstrapTable('refresh');
+					$('#table').bootstrapTable('refresh');
+				}
+			}
+			xhr0.send(JSON.stringify(msg));
+            modal.modal('hide');
+		});
+	}
+  </script>
+<style>
+.bootstrap-table .fixed-table-body table.table tbody tr td {
+  vertical-align:top;
+}
+h4 {display:inline-block; }
+.bigblock a.btn {margin-top:-4px;}
+</style>
+</head>
+
+
+<body>
+  <div class="container">
+    <div class="row col-md-12">
+      <div style="width:100%;">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+          <a class="navbar-brand" href="#">Admin</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <ul id="admin-menu" class="navbar-nav">
+            </ul>
+          </div>
+        </nav>
+      </div>
+      <div class="bigblock">
+        <h4>Personal Data Processing Operations</h4>&nbsp;&nbsp;
+			<a class="btn btn-secondary" data-toggle="collapse" href="#processingInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>&nbsp;&nbsp;
+			<a class="btn btn-primary" href="javascript:editProcessingActivity();" role="button" aria-expanded="false" aria-controls="collapseExample">Create New</a>
+		<div class="collapse" id="processingInfo">
+			<p><strong>Processing</strong> is GDPR means any operation or set of operations which is performed on personal data or on sets of personal data,
+			whether or not by automated means, such as collection, recording, organisation, structuring, storage, adaptation or alteration,
+			retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination,
+			restriction, erasure or destruction.</p>
+			<p>Under GDPR, organizations must process personal data <strong>lawfully, fairly, and transparently</strong>. To comply this principle,
+			Chapter 6 of the GDPR requires any organization <strong>processing personal data</strong> to have a valid <strong>legal basis</strong> for that personal data
+			processing operation. For example <strong>Consent</strong> is one of the six allowed methods.</p>
+		</div>
+        <table id="table" class="table">
+          <thead>
+            <tr>
+              <th scope="col-4" class="w-25" data-field="activity" data-formatter="displayActivity">Processing operation</th>
+			  <th scope="col-3" class="w-25" data-field="briefs" data-formatter="displayLegalBasis">Legal basis</th>
+              <th scope="col-3" class="w-25" data-field="fulldesc" data-formatter="displayDescription">Description</th>
+              <th scope="col-2" data-field="rtoken" data-formatter="displayProcessingActions">Actions</th>
+            </tr>
+          </thead>
+        </table>
+		<h4>Legal Basis Configuration</h4>&nbsp;&nbsp;
+			<a class="btn btn-secondary" data-toggle="collapse" href="#legalbasisInfo" role="button" aria-expanded="false" aria-controls="collapseExample">What is it?</a>&nbsp;&nbsp;
+			<a class="btn btn-primary" href="javascript:editLegalBasis();" role="button" aria-expanded="false" aria-controls="collapseExample">Create New</a>
+		<div class="collapse" id="legalbasisInfo">
+			<p>The <strong>legal basis</strong> is the foundation for data processing under the GDPR. It means that if an organisation wants
+			to process personal data, there is a need to identify specific legal grounds for the processing. There are six options:<p>
+			<ol>
+			<li><strong>Consent</strong> - like in cookie consent. In GDPR Article 4(11) consent is defined as : any freely given, specific,
+			informed and unambiguous indication of the data subject's wishes by which he or she, by a statement or by a clear affirmative action,
+			signifies agreement to the processing of personal data relating to him or her.</li>
+			<li><strong>Contract</strong> - in case you use contract with you customers.</li>
+			<li><strong>Legitimate Interest</strong> - for example use of personal data for fraud detection.</li>
+			<li><strong>Vital Interest</strong> - for example in emergency medical care situations.</li>
+			<li><strong>Legal Requirements</strong> - for example comlianace with money anti-laundering laws, taxes, etc...</li>
+			<li><strong>Public Interest</strong> - processing required for public interest.</li>
+			</ol>
+		</div>
+        <table id="table2" class="table">
+          <thead>
+            <tr>
+              <th scope="col-4" class="w-25" data-field="brief" data-formatter="displayBrief">Legal Basis Brief</th>
+			  <th scope="col-3" class="w-25" data-field="basistype">Type</th>
+              <th scope="col-3" class="w-25" data-field="fulldesc" data-formatter="displayLegalBasisDesc">Description</th>
+              <th scope="col-2" data-field="brief" data-formatter="displayLegalBasisActions">Actions</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

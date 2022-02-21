@@ -1,0 +1,28 @@
+name = "salesforce-pii"
+type = "javascript"
+
+zone_id = "44ccec372ad2478131dc3fd7bf51a6c2"
+account_id = "b3dad22670b88424da9afddc967218a2"
+route = "sf.macrometa.io/*"
+workers_dev = false
+
+[vars]
+FEDERATION_URL="https://api-gdn.paas.macrometa.io"
+PRIVACY_SERVICE_URL="http://privacy-service.eng.macrometa.io:3000"
+DATABUNKER_ROOTTOKEN="xxxx"
+TWILIO_ACCOUNT_SID="ACcc4ff71cb9aac0cf386912192bcf0a5f"
+TWILIO_AUTH_TOKEN="xxxx"
+TWILIO_MESSAGE_ENDPOINT="https://api.twilio.com/2010-04-01/Accounts/"
+TWILIO_NUMBER="+19378822331"
+MM_API_KEY="xxxx"
+
+[site]
+bucket = "./public"
+entry-point = "."
+
+[build]
+command = "npm run build:worker"
+watch_dir = "build/index.js"
+
+[build.upload]
+format="service-worker"

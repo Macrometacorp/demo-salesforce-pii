@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Data Bunker - List of data processing requests</title>
+    <script src="conf.js"></script>
+    <script src="site.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+<script>
+var xtoken = window.localStorage.getItem('xtoken');
+var token = window.localStorage.getItem('token');
+conf = loadUIConfiguration();
+if (conf["custom_css_link"]) {
+  document.write("<link rel='stylesheet' type='text/css' href='" + conf["custom_css_link"] +"' />");
+}
+function confirmWithdrawal(brief) {
+  var heading = "Confirm Consent Withdrawal";
+  var question = "Are you sure?";
+  var cancelButtonTxt = "Close popup";
+  var okButtonTxt = "Withdraw";
+  var confirmModal =
+    $('<div class="modal fade" role="dialog"><div class="modal-dialog" role="document"><div class="modal-content">' +
+      '<div class="modal-header">' +
+      '<h5 class="modal-title">' + heading + '</h5>' +
+      '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+      '<span aria-hidden="true">&times;</span></button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+      '<p>' + question + '</p>' +
+      '</div>' +
+      '<div class="modal-footer">' +
+      '<a href="#" class="btn" data-dismiss="modal">' +
+      cancelButtonTxt +
+      '</a>' +
+      '<a href="#" id="okButton" class="btn btn-primary">' +
+      okButtonTxt +
+      '</a>' +
+      '</div>' +
+      '</div></div></div>');
+
+  confirmModal.find('#okButton').click(function(event) {
+    //callback();
+    withdrawConsent(brief);
+    confirmModal.modal('hide');
+  });
+  confirmModal.modal('show');
+}
+
+function withdrawConsent(brief) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('DELETE', "/v1/agreement/" + brief + "/token/" + token);
+  xhr.setRequestHeader("X-Bunker-Token", xtoken)
+  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      var data = JSON.parse(xhr.responseText);
+      if (data.status == "ok" && data.result && data.result == "request-created") {
+        showAlert("Admin request created to withdraw your consent.");
+      } else if (data.status == "ok" && data.result && data.result == "request-exists") {
+        showAlert("Similar request already exists for Admin approval.");
+      } else {
+        document.location.reload();
+      }
+    } else if (xhr.status > 400 && xhr.status < 500) {
+      document.location = "/";
+    }
+  }
+  xhr.send();
+}
+
+function acceptConsent(brief) {
+  acceptAgreement('token', token, brief, '', function(data) {
+    document.location.reload();
+  });
+}
+
+function prepareRow(row) {
+  var msg = row.brief;
+  if (!row.message) {
+    msg = row.brief;
+  }
+  var start = '<div class="row mb-3">';
+  var now = Math.floor(Date.now() / 1000);
+  var d = '<div class="col-3">Created: ' + dateFormat(row.creationtime) + '<br/>';
+  if (row.when != row.creationtime) {
+    d = d + 'Last updated: ' + dateFormat(row.when) + '<br/>';
+  }
+  if (row.starttime > now) {
+    d = d + 'Will start at: ' + dateFormat(row.starttime) + '</br/>';
+  }
+  if (row.endtime > now) {
+    d = d + 'Will expire at: ' + dateFormat(row.endtime) + '</br/>';
+  } else if (row.endtime > 0) {
+    d = d + 'Expired at: ' + dateFormat(row.endtime) + '</br/>';
+  }
+  d = d + '</div>';
+  var info = '<div class="col-6"><strong>Consent: ' + msg + '</strong><br/>';
+  info = info + '<small>Last identity: ' + row.who + ' (' + row.mode + ')</small><br/>';
+  info = info + '<small>Lawful basis: ' + row.lawfulbasis + ' (' + row.consentmethod + ')</small><br/>';
+  if (row.referencecode) {
+    info = info + '<small>Reference method: ' + row.referencecode + '</small><br/>';
+  }
+  if (row.freetext) {
+    info = info + '<small>Additional info: ' + row.freetext + '</small><br/>';
+  }
+  info = info + '</div>'
+  var withdraw = "<a href=\"javascript:confirmWithdrawal('" + row.brief + "');\">Withdraw</a>";
+  var accept = "<a href=\"javascript:acceptConsent('" + row.brief + "');\">Give</a>";
+  var op = withdraw;
+  if (row.status != 'yes') {
+    op = accept;
+  }
+  var status = '<div class="col-3"><center>Consent Given: ' + row.status + '</br>' + op + '</center></div>'
+  return start + d + info + status + '</div>';
+}
+
+</script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row col-md-12">
+            <div style="width:100%;">
+                <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                        <ul class="navbar-nav">
+				<script>showUserMenu();</script>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+            <div class="bigblock">
+                <h4>My agreements</h4>
+                <p id="msg">Manage all your agreements in one screen. You can easily give or withdraw consent.</p>
+                <div id="data"></div>
+            </div>
+        </div>
+	    <script>displayFooterLinks();</script>
+    </div>
+</body>
+<script>
+loadAgreements("token", token, function(data) {
+  if (data.status == "ok") {
+    //$('#msg').text("Access xtoken value: " + xtoken + " user: " + token)
+    var index;
+    for (index = 0; index < data.rows.length; ++index) {
+      var row = data.rows[index];
+      //console.log("row", row)
+      $('#data').append(prepareRow(row));
+      //fetchApp(token, xtoken, app);
+    }
+  }
+});
+</script>
+</html>
