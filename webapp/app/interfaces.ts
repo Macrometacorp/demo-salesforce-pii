@@ -53,6 +53,7 @@ export interface CommonShareModalProps {
 }
 
 export type EditModalProps = ModalProps & {
+  showModal: boolean;
   formAction: string;
   shouldDecrypt?: boolean;
 };

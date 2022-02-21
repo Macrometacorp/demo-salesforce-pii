@@ -232,15 +232,14 @@ export default () => {
           <p className="mb-5 text-3xl font-bold">No contacts found</p>
         </div>
       )}
-      {showEditModal && (
-        <EditModal
-          modalUserDetails={modalUserDetails}
-          formAction={AppPaths.UserManagement}
-          onModalClose={() => {
-            setShowEditModal(false);
-          }}
-        />
-      )}
+      <EditModal
+        showModal={showEditModal}
+        modalUserDetails={modalUserDetails}
+        formAction={AppPaths.UserManagement}
+        onModalClose={() => {
+          setShowEditModal(false);
+        }}
+      />
 
       {showRemoveModal && (
         <RemoveModal
