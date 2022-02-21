@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "remix";
 import { FormButtonActions, HttpMethods, ModalPaths } from "~/constants";
 import { EditModalProps, UserData } from "~/interfaces";
@@ -12,6 +12,8 @@ export default ({
   shouldDecrypt = true,
 }: EditModalProps) => {
   const fetcher = useFetcher();
+  const formEl = useRef(null);
+
   const [decryptData, setDecryptData] = useState({} as UserData);
 
   const handleInput = (inputType: string) => {
@@ -23,6 +25,11 @@ export default ({
       });
     };
   };
+
+  useEffect(() => {
+    // reset form
+    (formEl?.current as any)?.reset();
+  }, [showModal]);
 
   useEffect(() => {
     if (fetcher.state === "loading") {
@@ -67,13 +74,13 @@ export default ({
         setDecryptData(modalUserDetails);
       }
     }
-  });
+  }, [modalUserDetails]);
 
   let content = <div>Getting decrypted data...</div>;
   if (Object.keys(decryptData).length) {
     const { country, token } = decryptData as UserData;
     content = (
-      <fetcher.Form action={formAction} method={HttpMethods.Post}>
+      <fetcher.Form action={formAction} method={HttpMethods.Post} ref={formEl}>
         <div className="form-control">
           <label className="label font-semibold">
             <span className="label-text">Name</span>
