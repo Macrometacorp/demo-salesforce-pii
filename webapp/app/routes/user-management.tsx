@@ -98,7 +98,8 @@ export default () => {
 
   const fetchers = useFetchers();
 
-  const actionData = fetchers?.[0]?.data;
+  const actionData = fetchers?.[0]?.data || useActionData();
+
   const allUserData = useLoaderData();
   const transition = useTransition();
 
