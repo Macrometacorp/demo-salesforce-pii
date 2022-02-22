@@ -132,7 +132,6 @@ export const leadListHandler = async () => {
 };
 
 export const saveLeadDatahandler = async (leadValues: object) => {
-  await cache.create();
   const newLeadPayload = leadValues;
   let data;
 
