@@ -79,8 +79,22 @@ export interface Context {
     showAddContactModal: boolean;
     setShowAddContactModal: (show: boolean) => void;
   };
+  addLatencyModal: {
+    showLatencyModal: boolean;
+    setShowLatencyModal: (show: boolean) => void;
+  };
 }
 
 export interface HeaderProps {
   setShowAddContactModal: (show: boolean) => void;
+  setShowLatencyModal: (show: boolean) => void;
+}
+
+export interface LatencyInfo {
+  Name: string,
+  Path: string,
+  Status: string,
+  Time: string,
+  Method: string,
+  Size: string
 }
