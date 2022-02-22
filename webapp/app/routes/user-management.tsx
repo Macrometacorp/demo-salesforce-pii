@@ -21,13 +21,14 @@ import {
   AppPaths,
 } from "~/constants";
 
-import { Context, UserData, UserManagementActionResult } from "~/interfaces";
+import { Context, LatencyInfo, UserData, UserManagementActionResult } from "~/interfaces";
 import { isLoggedIn } from "~/utilities/utils";
 
 import EditModal from "./components/modals/editModal";
 import RemoveModal from "./components/modals/removeModal";
 import ShareModal from "./components/modals/shareModal";
 import AddContactModal from "./components/modals/addContactModal";
+import LatencyModal from "./components/modals/showLatencyModal";
 import ProgressModal from "./components/modals/progressModal";
 import Row from "./components/tableRow";
 import Unauthorized from "./components/unauthorized";
@@ -42,6 +43,7 @@ import handleDelete from "../utilities/REST/handlers/delete";
 import handleUpload from "../utilities/REST/handlers/upload";
 import handleList from "../utilities/REST/handlers/list";
 import handleSearch from "../utilities/REST/handlers/search";
+import { measureLatency } from '../root';
 
 export const action: ActionFunction = async ({
   request,
@@ -93,7 +95,11 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default () => {
   const {
-    addContactModal: { showAddContactModal, setShowAddContactModal },
+    addContactModal: { showAddContactModal, setShowAddContactModal }
+  } = useOutletContext<Context>();
+
+  const {
+    addLatencyModal: { showLatencyModal, setShowLatencyModal }
   } = useOutletContext<Context>();
 
   const fetchers = useFetchers();
@@ -120,6 +126,7 @@ export default () => {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [modalUserDetails, setModalUserDetails] = useState({} as UserData);
+  const [modalLatencyDetails, setModalLatencyDetails] = useState([] as LatencyInfo[]);
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState(ToastTypes.Info);
   const [toastMessage, setToastMessage] = useState("");
@@ -129,6 +136,7 @@ export default () => {
     if (userData.length < CONTACTS_PER_PAGE) {
       setCurrentPage(1);
     }
+    measureLatency("GET")
   }, [userData.length]);
 
   useEffect(() => {
@@ -173,6 +181,11 @@ export default () => {
       sessionStorage.getItem(SessionStorage.IsPrivateRegion) || ""
     );
   }, []);
+
+  useEffect(() => {
+    const latenciesInformation = sessionStorage.getItem(SessionStorage.ResponseTime);
+    setModalLatencyDetails(latenciesInformation ? JSON.parse(latenciesInformation).reverse() : [])
+  }, [showShareModal])
 
   const closeToast = () => {
     setShowToast(false);
@@ -262,6 +275,13 @@ export default () => {
         showModal={showAddContactModal}
         onModalClose={() => {
           setShowAddContactModal(false);
+        }}
+      />
+      <LatencyModal
+        showModal={showLatencyModal}
+        modalLatencyDetails={modalLatencyDetails}
+        onModalClose={() => {
+          setShowLatencyModal(false);
         }}
       />
       {showDecryptModal && (

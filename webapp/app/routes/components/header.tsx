@@ -1,12 +1,15 @@
 import { Link } from "remix";
 import { AppPaths } from "~/constants";
 import { HeaderProps } from "~/interfaces";
+import LeftMenu from './leftMenu';
 import Menu from "./menu";
 
 export default (props: HeaderProps) => {
   return (
     <div className="navbar mb-2 shadow-lg bg-primary text-neutral-content box h-32">
-      <div className="flex-1"></div>
+      <div className="flex-1">
+        <LeftMenu {...props}/>
+      </div>
       <div className="flex-1 justify-center">
         <div>
           <Link to={AppPaths.Logout} reloadDocument>

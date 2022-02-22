@@ -2183,6 +2183,14 @@ html {
   font-size: .875rem;
 }
 
+.btn-md {
+  height: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  min-height: 3rem;
+  font-size: .875rem;
+}
+
 .btn-square:where(.btn-xs) {
   height: 1.5rem;
   padding: 0;
@@ -2212,6 +2220,13 @@ html {
   height: 2rem;
   padding: 0;
   width: 2rem;
+}
+
+.btn-circle:where(.btn-md) {
+  border-radius: 9999px;
+  height: 3rem;
+  padding: 0;
+  width: 3rem;
 }
 
 .alert-error {
@@ -2574,6 +2589,10 @@ html {
 
 .font-bold {
   font-weight: 700;
+}
+
+.leading-10 {
+  line-height: 2.5rem;
 }
 
 .leading-7 {
