@@ -1,6 +1,6 @@
 import mmcache from "macrometa-realtime-cache";
 import { buildURL, fetchWrapper, getOptions } from "./apiCalls";
-import { Parser } from "json2csv";
+import Papa from "papaparse";
 import { createJobBody, optionsObj, Queries } from "~/constants";
 
 
@@ -36,8 +36,7 @@ export const bulkLeadRecordUpdate = async () => {
   try {
     let cachedSavedData = await cache.getResponse({ url: "saveData" });
   const token =  await getAccessToken();
-    const parser = new Parser();
-    const csv = parser.parse(cachedSavedData.value);
+    const csv = Papa.unparse(cachedSavedData.value)
     const methodOptions = getOptions(
       { method: "POST", body: createJobBody },
       token

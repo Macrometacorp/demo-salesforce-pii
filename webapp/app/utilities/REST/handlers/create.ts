@@ -32,8 +32,8 @@ export default async (request: Request, form: FormData) => {
 
 
 
- const res = await saveLeadDatahandler({name,company,leadStatus,phone,title,NumberOfEmployees:noOfEmployees,website,leadSource,industry,email,rating,street,city,state,country,postalCode:zipcode})
-  try {
+ await saveLeadDatahandler({name,company,leadStatus,phone,title,NumberOfEmployees:noOfEmployees,website,leadSource,industry,email,rating,street,city,state,country,postalCode:zipcode})
+ try {
     if (isPrivate) {
       const resText = await piiAddContact(name, email, phone).then((response) =>
         response.text()
