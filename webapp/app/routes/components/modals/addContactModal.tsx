@@ -42,15 +42,162 @@ export default ({
         >
           <div className="form-control">
             <label className="label font-semibold">
-              <span className="label-text">Name</span>
+              <span className="label-text">First Name</span>
             </label>
             <input
               type="text"
-              name="name"
+              name="firstName"
               required
               placeholder="Bruce Wayne"
               className="input input-primary input-bordered"
             />
+          </div>
+
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Last Name</span>
+            </label>
+            <input
+              type="text"
+              name="lastName"
+              required
+              placeholder="Bruce Wayne"
+              className="input input-primary input-bordered"
+            />
+          </div>
+
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Company</span>
+            </label>
+            <input
+              type="text"
+              name="company"
+              required
+              placeholder="bruce@wayneindustries.com"
+              className="input input-primary input-bordered"
+            />
+          </div>
+
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Lead Status</span>
+            </label>
+            <select className="select select-bordered">
+              <option disabled selected>
+                Lead Status
+              </option>
+
+              <option value={"Open - Not Contacted"}>
+                Open - Not Contacted
+              </option>
+              <option value={"Working - Contacted"}>Working - Contacted</option>
+              <option value={"Closed - Converted"}>Closed - Converted</option>
+              <option value={"Closed - Not Converted"}>
+                Closed - Not Converted
+              </option>
+            </select>
+          </div>
+
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Phone</span>
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              required
+              placeholder="272984356"
+              className="input input-primary input-bordered"
+            />
+          </div>
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Title</span>
+            </label>
+            <input
+              type="text"
+              name="title"
+              required
+              placeholder="bruce@wayneindustries.com"
+              className="input input-primary input-bordered"
+            />
+          </div>
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Number Of Employess</span>
+            </label>
+            <input
+              type="number"
+              name="noOfEmployees"
+              required
+              placeholder="bruce@wayneindustries.com"
+              className="input input-primary input-bordered"
+            />
+          </div>
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Website</span>
+            </label>
+            <input
+              type="url"
+              name="website"
+              required
+              placeholder="bruce@wayneindustries.com"
+              className="input input-primary input-bordered"
+            />
+          </div>
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Lead Source</span>
+            </label>
+            <select className="select select-bordered">
+              <option disabled aria-label="None" value="" selected></option>
+              <option value={"Web"}>Web</option>
+              <option value={"Phone Inquiry"}>Phone Inquiry</option>
+              <option value={"Partner Referral"}>Partner Referral</option>
+              <option value={"Purchased List"}>Purchased List</option>
+              <option value={"Other"}>Other</option>
+            </select>
+          </div>
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Industry</span>
+            </label>
+            <select className="select select-bordered">
+              <option disabled selected aria-label="None" value="" />
+              <option value={"Agriculture"}>Agriculture</option>
+              <option value={"Apparel"}>Apparel</option>
+              <option value={"Banking"}>Banking</option>
+              <option value={"Biotechnology"}>Biotechnology</option>
+              <option value={"Chemicals"}>Chemicals</option>
+              <option value={"Communications"}>Communications</option>
+              <option value={"Construction"}>Construction</option>
+              <option value={"Consulting"}>Consulting</option>
+              <option value={"Education"}>Education</option>
+              <option value={"Electronics"}>Electronics</option>
+              <option value={"Energy"}>Energy</option>
+              <option value={"Engineering"}>Engineering</option>
+              <option value={"Entertainment"}>Entertainment</option>
+              <option value={"Environmental"}>Environmental</option>
+              <option value={"Finance"}>Finance</option>
+              <option value={"Food & Beverage"}>Food & Beverage</option>
+              <option value={"Government"}>Government</option>
+              <option value={"Healthcare"}>Healthcare</option>
+              <option value={"Hospitality"}>Hospitality</option>
+              <option value={"Insurance"}>Insurance</option>
+              <option value={"Machinery"}>Machinery</option>
+              <option value={"Manufacturing"}>Manufacturing</option>
+              <option value={"Not For Profit"}>Not For Profit</option>
+              <option value={"Recreation"}>Recreation</option>
+              <option value={"Retail"}>Retail</option>
+              <option value={"Shipping"}>Shipping</option>
+              <option value={"Technology"}>Technology</option>
+              <option value={"Telecommunications"}>Telecommunications</option>
+              <option value={"Transportation"}>Transportation</option>
+              <option value={"Utilities"}>Utilities</option>
+              <option value={"Other"}>Other</option>
+            </select>
           </div>
 
           <div className="form-control">
@@ -68,17 +215,41 @@ export default ({
 
           <div className="form-control">
             <label className="label font-semibold">
-              <span className="label-text">Phone</span>
+              <span className="label-text">Rating</span>
+            </label>
+            <select className="select select-bordered">
+              <option disabled selected aria-label="None" value="" />
+              <option value={"Hot"}>Hot</option>
+              <option value={"Warm"}>Warm</option>
+              <option value={"Cold"}>Cold</option>
+            </select>
+          </div>
+
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">Street</span>
             </label>
             <input
-              type="tel"
-              name="phone"
+              type="text"
+              name="street"
               required
-              placeholder="272984356"
+              placeholder="Wall Street"
               className="input input-primary input-bordered"
             />
           </div>
 
+          <div className="form-control">
+            <label className="label font-semibold">
+              <span className="label-text">City</span>
+            </label>
+            <input
+              type="text"
+              name="city"
+              required
+              placeholder="New Jersey"
+              className="input input-primary input-bordered"
+            />
+          </div>
           <div className="form-control">
             <label className="label font-semibold">
               <span className="label-text">State</span>
@@ -107,26 +278,13 @@ export default ({
 
           <div className="form-control">
             <label className="label font-semibold">
-              <span className="label-text">Zipcode</span>
+              <span className="label-text">Postal Code</span>
             </label>
             <input
               type="text"
               name="zipcode"
               required
               placeholder="53540"
-              className="input input-primary input-bordered"
-            />
-          </div>
-
-          <div className="form-control">
-            <label className="label font-semibold">
-              <span className="label-text">Job Title</span>
-            </label>
-            <input
-              type="text"
-              name="job_title"
-              required
-              placeholder="CEO"
               className="input input-primary input-bordered"
             />
           </div>

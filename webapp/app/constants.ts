@@ -101,7 +101,24 @@ export const Queries = {
 
   DeleteLocation: () =>
     `REMOVE { _key: @token } IN ${Collections.UserLocations}`,
+  
+  SalesforceLeadQuery:()=>"Select id,salutation,name,firstname,lastname,title,company,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner from lead"
+  
 };
+
+
+export const optionsObj = {
+  headers: {
+    "content-type": "application/json",
+  },
+};
+
+export const createJobBody = JSON.stringify({
+  object: "Lead",
+  operation: "insert",
+  contentType: "CSV",
+});
+
 
 export enum ActionButtons {
   Edit = "EDIT",
