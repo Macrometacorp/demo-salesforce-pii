@@ -48,7 +48,7 @@ export default ({
               type="text"
               name="firstName"
               required
-              placeholder="Bruce Wayne"
+              placeholder="Bruce"
               className="input input-primary input-bordered"
             />
           </div>
@@ -61,7 +61,7 @@ export default ({
               type="text"
               name="lastName"
               required
-              placeholder="Bruce Wayne"
+              placeholder="Wayne"
               className="input input-primary input-bordered"
             />
           </div>
@@ -74,7 +74,7 @@ export default ({
               type="text"
               name="company"
               required
-              placeholder="bruce@wayneindustries.com"
+              placeholder="Macrometa"
               className="input input-primary input-bordered"
             />
           </div>
@@ -83,7 +83,7 @@ export default ({
             <label className="label font-semibold">
               <span className="label-text">Lead Status</span>
             </label>
-            <select className="select select-bordered">
+            <select className="select select-bordered" name="leadStatus">
               <option disabled selected>
                 Lead Status
               </option>
@@ -119,7 +119,7 @@ export default ({
               type="text"
               name="title"
               required
-              placeholder="bruce@wayneindustries.com"
+              placeholder="Mr"
               className="input input-primary input-bordered"
             />
           </div>
@@ -128,10 +128,10 @@ export default ({
               <span className="label-text">Number Of Employess</span>
             </label>
             <input
-              type="number"
+              type="text"
               name="noOfEmployees"
               required
-              placeholder="bruce@wayneindustries.com"
+              placeholder="100"
               className="input input-primary input-bordered"
             />
           </div>
@@ -140,10 +140,10 @@ export default ({
               <span className="label-text">Website</span>
             </label>
             <input
-              type="url"
+              type="text"
               name="website"
               required
-              placeholder="bruce@wayneindustries.com"
+              placeholder="www.macrometa.dev"
               className="input input-primary input-bordered"
             />
           </div>
@@ -151,7 +151,7 @@ export default ({
             <label className="label font-semibold">
               <span className="label-text">Lead Source</span>
             </label>
-            <select className="select select-bordered">
+            <select className="select select-bordered" name="leadSource">
               <option disabled aria-label="None" value="" selected></option>
               <option value={"Web"}>Web</option>
               <option value={"Phone Inquiry"}>Phone Inquiry</option>
@@ -164,7 +164,7 @@ export default ({
             <label className="label font-semibold">
               <span className="label-text">Industry</span>
             </label>
-            <select className="select select-bordered">
+            <select className="select select-bordered" name="industry">
               <option disabled selected aria-label="None" value="" />
               <option value={"Agriculture"}>Agriculture</option>
               <option value={"Apparel"}>Apparel</option>
@@ -217,7 +217,7 @@ export default ({
             <label className="label font-semibold">
               <span className="label-text">Rating</span>
             </label>
-            <select className="select select-bordered">
+            <select className="select select-bordered" name="rating">
               <option disabled selected aria-label="None" value="" />
               <option value={"Hot"}>Hot</option>
               <option value={"Warm"}>Warm</option>
@@ -283,7 +283,6 @@ export default ({
             <input
               type="text"
               name="zipcode"
-              required
               placeholder="53540"
               className="input input-primary input-bordered"
             />
