@@ -25,7 +25,6 @@ export const meta: MetaFunction = () => {
 
 export const measureLatency = (method: string) => {
   if (typeof document !== 'undefined') {
-    debugger;
     let performances: any = performance
       .getEntriesByType('resource')
       .filter((item: any) => item.initiatorType === LatencyRequest.FETCH);
@@ -51,7 +50,7 @@ export const measureLatency = (method: string) => {
         responseTimeValue = {
           Name: performances[i].name,
           Status: '200',
-          Path: performances[i].name.split(window.location.hostname)[1],
+          Path: performances[i].name.split('?')[0].split(`${window.location.origin}/`)[1],
           Time:
             Math.round(
               performances[i].responseEnd - performances[i].fetchStart

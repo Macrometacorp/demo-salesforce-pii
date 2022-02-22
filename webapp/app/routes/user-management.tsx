@@ -184,7 +184,7 @@ export default () => {
 
   useEffect(() => {
     const latenciesInformation = sessionStorage.getItem(SessionStorage.ResponseTime);
-    setModalLatencyDetails(latenciesInformation ? JSON.parse(latenciesInformation).reverse() : [])
+    setModalLatencyDetails(latenciesInformation ? JSON.parse(latenciesInformation).reverse().slice(0, 50) : [])
   }, [showShareModal])
 
   const closeToast = () => {

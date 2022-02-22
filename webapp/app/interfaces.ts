@@ -92,6 +92,7 @@ export interface HeaderProps {
 
 export interface LatencyInfo {
   Name: string,
+  Path: string,
   Status: string,
   Time: string,
   Method: string,
