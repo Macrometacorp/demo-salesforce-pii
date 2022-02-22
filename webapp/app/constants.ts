@@ -139,6 +139,7 @@ export enum FormButtonActions {
   Update = "update",
   Delete = "delete",
   Upload = "upload",
+  RefreshCache = "refreshCache"
 }
 
 export const LATENCY_HEADINGS = ["path", "status", "method", "size", "time"];

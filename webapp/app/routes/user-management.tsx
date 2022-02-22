@@ -41,20 +41,22 @@ import ErrorComponent from "./components/error";
 import DecryptedModal from "./components/modals/showDecryptedModal";
 import { Pagination } from "./components/Pagination";
 import Toast from "./components/toast";
-
 import handleCreate from "../utilities/REST/handlers/create";
 import handleUpdate from "../utilities/REST/handlers/update";
 import handleDelete from "../utilities/REST/handlers/delete";
 import handleUpload from "../utilities/REST/handlers/upload";
 import handleList from "../utilities/REST/handlers/list";
 import handleSearch from "../utilities/REST/handlers/search";
+import { refreshCache } from '../utilities/REST/salesforce';
 
 export const action: ActionFunction = async ({
   request,
 }): Promise<UserManagementActionResult> => {
   const form = await request.formData();
-  const actionType = form.get(FormButtonActions.Name)?.toString() ?? "";
-
+  const actionType =
+    form.get(FormButtonActions.Name)?.toString() ??
+    form.get(FormButtonActions.RefreshCache)?.toString() ??
+    "";
   let result;
   switch (actionType) {
     case FormButtonActions.Create:
@@ -68,6 +70,9 @@ export const action: ActionFunction = async ({
       break;
     case FormButtonActions.Upload:
       result = await handleUpload(request, form);
+      break;
+    case FormButtonActions.RefreshCache:
+      result = await refreshCache() as any;
       break;
     default:
       result = {
@@ -154,8 +159,16 @@ export default () => {
 
   useEffect(() => {
     if (actionData) {
-      const { error, isPrivate, isDeleted, isUpdated, isAdded } = actionData;
-
+      const {
+        error,
+        isPrivate,
+        isDeleted,
+        isUpdated,
+        isAdded,
+        isRefresh,
+        errorMessage,
+        name,
+      } = actionData;
       let toastType = error
         ? ToastTypes.Error
         : isPrivate
@@ -164,7 +177,7 @@ export default () => {
 
       let toastMessage = "";
       if (error) {
-        toastMessage = `${error.name}: ${error.errorMessage}`;
+        toastMessage = `${name}: ${errorMessage}`;
       } else {
         if (isAdded) {
           toastMessage = "Your new record will reflect shortly";
@@ -172,9 +185,11 @@ export default () => {
           toastMessage = "Your record is updated and will reflect shortly";
         } else if (isDeleted) {
           toastMessage = "Your record is deleted and will reflect shortly";
+        } else if (isRefresh) {
+          toastMessage = "Cache updated successfully";
         }
       }
-
+      
       setShowToast(true);
       setToastType(toastType);
       setToastMessage(toastMessage);
