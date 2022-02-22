@@ -7,7 +7,6 @@ export enum Session {
 export enum SessionStorage {
   IsPrivateRegion = "isPrivateRegion",
   Region = "region",
-  ResponseTime = "responseTime"
 }
 
 export enum AppPaths {
@@ -26,8 +25,8 @@ export enum ModalPaths {
   ShareModal = "#share-modal",
   AddContactModal = "#contact-modal",
   ShowDecryptedModal = "#decrypted-modal",
-  ShowEditForgetModal ="#edit-forget-modal",
-  ShowLatencyModal = '#latency-model'
+  ShowEditForgetModal = "#edit-forget-modal",
+  ShowLatencyModal = "#latency-model",
 }
 
 export enum ToastTypes {
@@ -142,14 +141,9 @@ export enum FormButtonActions {
   Upload = "upload",
 }
 
-export const LATENCY_HEADINGS = [
-  "path",
-  "status",
-  "method",
-  "size",
-  "time"
-];
+export const LATENCY_HEADINGS = ["path", "status", "method", "size", "time"];
 
 export enum LatencyRequest {
-  FETCH = "fetch"
+  Type = "resource",
+  FETCH = "fetch",
 }

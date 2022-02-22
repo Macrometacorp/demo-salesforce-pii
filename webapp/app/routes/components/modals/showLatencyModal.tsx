@@ -1,27 +1,27 @@
-import { getModalId, isLoggedIn, truncate } from '~/utilities/utils';
-import { LATENCY_HEADINGS, ModalPaths } from '~/constants';
-import { LatencyInfo } from '~/interfaces';
+import { getModalId, isLoggedIn, truncate } from "~/utilities/utils";
+import { LATENCY_HEADINGS, ModalPaths } from "~/constants";
+import { LatencyInfo } from "~/interfaces";
+import { PerformanceMeasurement } from "~/utilities/performance";
 
 export default ({
-  showModal,
   onModalClose,
-  modalLatencyDetails,
+  performanceMeasurement,
 }: {
-  showModal: boolean;
   onModalClose: () => void;
-  modalLatencyDetails: LatencyInfo[];
+  performanceMeasurement: PerformanceMeasurement | undefined;
 }) => {
+  const perfs = performanceMeasurement?.getPerformances();
   return (
     <div
       id={getModalId(ModalPaths.ShowLatencyModal)}
-      className={`modal ${showModal ? 'modal-open' : 'modal-close'} size-xs`}
+      className={`modal modal-open size-xs`}
     >
-      <div className='modal-box max-w-2xl'>
-        <table className='table w-full'>
+      <div className="modal-box max-w-2xl">
+        <table className="table w-full">
           <thead>
             <tr>
               {LATENCY_HEADINGS.map((heading) => {
-                const textStyle = heading === 'actions' ? 'text-center' : '';
+                const textStyle = heading === "actions" ? "text-center" : "";
                 return (
                   <th className={textStyle} key={heading}>
                     {heading}
@@ -32,13 +32,14 @@ export default ({
           </thead>
 
           <tbody>
-            {modalLatencyDetails.length > 0 &&
-              modalLatencyDetails.map((data: LatencyInfo, index: number) => (
+            {perfs &&
+              perfs?.length > 0 &&
+              perfs.reverse().map((data: LatencyInfo, index: number) => (
                 <tr key={`${ModalPaths.ShowLatencyModal}_${index}`}>
                   <td>
                     <span
                       data-tip={data.Path}
-                      className='tooltip tooltip-bottom'
+                      className="tooltip tooltip-bottom"
                     >
                       {truncate(data.Path)}
                     </span>
@@ -46,7 +47,7 @@ export default ({
                   <td>
                     <span
                       data-tip={data.Status}
-                      className='tooltip tooltip-bottom'
+                      className="tooltip tooltip-bottom"
                     >
                       {truncate(data.Status)}
                     </span>
@@ -54,7 +55,7 @@ export default ({
                   <td>
                     <span
                       data-tip={data.Method}
-                      className='tooltip tooltip-bottom'
+                      className="tooltip tooltip-bottom"
                     >
                       {truncate(data.Method)}
                     </span>
@@ -62,7 +63,7 @@ export default ({
                   <td>
                     <span
                       data-tip={data.Size}
-                      className='tooltip tooltip-bottom'
+                      className="tooltip tooltip-bottom"
                     >
                       {truncate(data.Size)}
                     </span>
@@ -70,7 +71,7 @@ export default ({
                   <td>
                     <span
                       data-tip={data.Time}
-                      className='tooltip tooltip-bottom'
+                      className="tooltip tooltip-bottom"
                     >
                       {truncate(data.Time)}
                     </span>
@@ -79,8 +80,8 @@ export default ({
               ))}
           </tbody>
         </table>
-        <div className='modal-action right-0'>
-          <a onClick={onModalClose} className='btn'>
+        <div className="modal-action right-0">
+          <a onClick={onModalClose} className="btn">
             Close
           </a>
         </div>
