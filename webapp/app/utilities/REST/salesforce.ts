@@ -3,7 +3,6 @@ import { buildURL, fetchWrapper, getOptions } from "./apiCalls";
 import Papa from "papaparse";
 import { createJobBody, optionsObj, Queries } from "~/constants";
 
-
 const cache = new (mmcache as any)({
   url: "https://gdn.paas.macrometa.io",
   apiKey: MM_API_KEY,
@@ -27,16 +26,15 @@ const getAccessToken = async () => {
     },
   };
   const response = await fetchWrapper(getUrl, methodOptions);
- const token = response.access_token;
+  const token = response.access_token;
   return token;
 };
 
 export const bulkLeadRecordUpdate = async () => {
-
   try {
     let cachedSavedData = await cache.getResponse({ url: "saveData" });
-  const token =  await getAccessToken();
-    const csv = Papa.unparse(cachedSavedData.value)
+    const token = await getAccessToken();
+    const csv = Papa.unparse(cachedSavedData.value);
     const methodOptions = getOptions(
       { method: "POST", body: createJobBody },
       token
@@ -74,7 +72,6 @@ export const bulkLeadRecordUpdate = async () => {
 };
 
 export const deleteStaleCacheHandler = async () => {
-
   const allKeyResult = await cache.allKeys();
   for (const keys of allKeyResult.result) {
     try {
@@ -88,7 +85,6 @@ export const deleteStaleCacheHandler = async () => {
 };
 
 export const getresponse = async () => {
-
   let data;
   try {
     const cacheResponse = await cache.getResponse({ url: "cachedSFResponse" });
@@ -123,7 +119,7 @@ export const leadListHandler = async () => {
     "/query",
     `?q=${query}`
   );
-  const  token= await getAccessToken()
+  const token = await getAccessToken();
   const methodOptions = getOptions({ method: "GET" }, token);
   const response = await fetchWrapper(getUrl, methodOptions);
   const body = JSON.stringify(response);
@@ -151,7 +147,6 @@ export const saveLeadDatahandler = async (leadValues: object) => {
 };
 
 export const newLeadCachedResponseHandler = async () => {
-
   try {
     const newLeadCachedResponse = await cache.getResponse({ url: "saveData" });
     return new Response(
