@@ -1,4 +1,5 @@
 import { ActionButtons } from "./constants";
+import { PerformanceMeasurement } from "./utilities/performance";
 
 export interface DataCenter {
   name: string;
@@ -83,6 +84,7 @@ export interface Context {
     showLatencyModal: boolean;
     setShowLatencyModal: (show: boolean) => void;
   };
+  performanceMeasurement: PerformanceMeasurement | undefined;
 }
 
 export interface HeaderProps {
@@ -91,10 +93,10 @@ export interface HeaderProps {
 }
 
 export interface LatencyInfo {
-  Name: string,
-  Path: string,
-  Status: string,
-  Time: string,
-  Method: string,
-  Size: string
+  Name: string;
+  Path: string;
+  Status: string;
+  Time: string;
+  Method: string;
+  Size: string;
 }
