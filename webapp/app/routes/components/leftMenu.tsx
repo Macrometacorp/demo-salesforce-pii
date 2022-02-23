@@ -6,8 +6,26 @@ import { useFetcher } from "remix";
 
 export default ({ setShowLatencyModal }: HeaderProps) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [refreshCache, setRefreshCache] = useState<Number>(0);
+  const [refreshButtonClass, setRefreshButtonClass] = useState("")
   const fetcher = useFetcher();
 
+  useEffect(() => {
+    switch (fetcher.state) {
+      case "submitting":
+        setRefreshCache(1);
+        setRefreshButtonClass("btn-info");
+        break;
+      case "loading":
+        setRefreshCache(2);
+        setRefreshButtonClass("btn-success");
+        break;
+      default:
+        setRefreshCache(0);
+        setRefreshButtonClass("btn-neutral");
+    }
+  }, [fetcher]);
+  
   useEffect(() => {
     const {
       location: { pathname },
@@ -40,13 +58,17 @@ export default ({ setShowLatencyModal }: HeaderProps) => {
             action={AppPaths.UserManagement}
           >
             <button
-              className="btn text-center ml-2 btn-sm mt-[9px]"
+              className={`btn text-center ml-2 btn-sm mt-[9px] ${refreshButtonClass}`}
               data-tip="View Latency"
               name={FormButtonActions.RefreshCache}
               value={FormButtonActions.RefreshCache}
               type="submit"
             >
-              Refresh Cache
+              {refreshCache == 0
+                ? "Refresh Cache"
+                : refreshCache == 1
+                ? "Refreshing Cache ..."
+                : "Cache Refreshed"}
             </button>
           </fetcher.Form>
         </div>

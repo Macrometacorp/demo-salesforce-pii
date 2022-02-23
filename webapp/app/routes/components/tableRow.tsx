@@ -108,9 +108,9 @@ export default ({
           {ActionButtons.Remove}
         </button>
         <button
-          className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-green-600 mr-2 ${
+          className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-green-600 mr-2 text-neutral ${
             isButtonDisabled ? "btn-disabled" : ""
-          }${showClass}`}
+          }`}
           disabled={isButtonDisabled}
           onClick={() => {
             onActionButtonClicked(ActionButtons.Share, data);
