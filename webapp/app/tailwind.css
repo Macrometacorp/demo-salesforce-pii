@@ -1042,6 +1042,24 @@ html {
   outline-offset: 2px;
 }
 
+.rating {
+  display: inline-flex;
+  position: relative;
+}
+
+.rating :where(input) {
+  cursor: pointer;
+  -webkit-animation: rating-pop var(--animation-input, .25s) ease-out;
+  animation: rating-pop var(--animation-input, .25s) ease-out;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: hsla(var(--bc) / var(--tw-bg-opacity, 1));
+  --tw-bg-opacity: 1;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
 .select {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -1970,6 +1988,28 @@ html {
   }
 }
 
+.rating .rating-hidden {
+  background-color: transparent;
+  width: .5rem;
+}
+
+.rating input:checked~input {
+  --tw-bg-opacity: 0.2;
+}
+
+.rating input:focus-visible {
+  transition-property: transform;
+  transition-duration: .3s;
+  transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+  transform: translateY(-.125em);
+}
+
+.rating input:active:focus {
+  -webkit-animation: none;
+  animation: none;
+  transform: translateY(-.125em);
+}
+
 @-webkit-keyframes rating-pop {
   0% {
     transform: translateY(-.125em);
@@ -2287,6 +2327,10 @@ html {
   visibility: hidden;
 }
 
+.static {
+  position: static;
+}
+
 .absolute {
   position: absolute;
 }
@@ -2349,12 +2393,20 @@ html {
   margin-bottom: 0.5rem;
 }
 
-.-mb-20 {
-  margin-bottom: -5rem;
+.mt-\[49px\] {
+  margin-top: 49px;
 }
 
 .ml-2 {
   margin-left: 0.5rem;
+}
+
+.mt-\[9px\] {
+  margin-top: 9px;
+}
+
+.-mb-20 {
+  margin-bottom: -5rem;
 }
 
 .-mb-4 {

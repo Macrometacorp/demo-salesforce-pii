@@ -102,7 +102,7 @@ export const getresponse = async () => {
             ttl: 10800,
           });
         } catch (err) {
-          console.error("erro", err);
+          console.error("error", err);
         }
       }
     }
@@ -155,5 +155,15 @@ export const newLeadCachedResponseHandler = async () => {
     );
   } catch (error) {
     return new Response(JSON.stringify({ value: [] }), optionsObj);
+  }
+};
+
+export const refreshCache = async () => {
+  try {
+    await deleteStaleCacheHandler();
+    await getresponse();
+    return { isRefresh: true };
+  } catch (error:any) {
+    return { error: true, errorMessage: error?.message || "Something went wrong while updating cache", name: error?.name || "Error" };
   }
 };
