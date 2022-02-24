@@ -7,6 +7,7 @@ export enum Session {
 export enum SessionStorage {
   IsPrivateRegion = "isPrivateRegion",
   Region = "region",
+  LatencyData = "latencyData"
 }
 
 export enum AppPaths {

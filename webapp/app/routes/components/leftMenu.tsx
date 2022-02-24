@@ -1,5 +1,5 @@
 import { HeaderProps } from "~/interfaces";
-import LatencySVG from "~/routes/components/svgs/contact";
+import LatencySVG from "~/routes/components/svgs/latency";
 import { AppPaths, FormButtonActions, HttpMethods } from "~/constants";
 import { useEffect, useState } from "react";
 import { useFetcher } from "remix";
