@@ -77,7 +77,7 @@ export const Queries = {
   GetLocations: () => `FOR doc in ${Collections.UserLeadInfo} RETURN doc`,
 
   InsertUser: () =>
-    `INSERT { _key: @token, token: @token, name: @name, email: @email, phone: @phone } INTO ${Collections.Users}`,
+    `INSERT { _key: @token, token: @token, name: @name, email: @email, phone: @phone,firstName:@firstName, lastname:@lastname } INTO ${Collections.Users}`,
 
   UpdateUser: (updateWhat: string) =>
     `FOR user IN ${Collections.Users} UPDATE { _key: @token, ${updateWhat} } IN ${Collections.Users}`,
@@ -102,7 +102,7 @@ export const Queries = {
   DeleteLocation: () =>
     `REMOVE { _key: @token } IN ${Collections.UserLeadInfo}`,
   
-  SalesforceLeadQuery:()=>"Select id,salutation,name,firstname,lastname,title,company,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner from lead"
+  SalesforceLeadQuery:()=>"Select id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees from lead"
   
 };
 

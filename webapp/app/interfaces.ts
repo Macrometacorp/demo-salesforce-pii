@@ -38,19 +38,19 @@ export interface LocationData {
 
 export interface LeadInfo {
   token: string;
-  company: string;
-  leadStatus: string;
-  title: string;
+  Company: string;
+  LeadStatus: string;
+  Title: string;
   NumberOfEmployees: string;
-  website:string;
-  leadSource: string;
-  industry: string;
-  rating: string;
-  street: string;
-  city: string;
-  state: string;
-  country: string;
-  postalCode: string;
+  Website:string;
+  LeadSource: string;
+  Industry: string;
+  Rating: string;
+  Street: string;
+  City: string;
+  State: string;
+  Country: string;
+  PostalCode: string;
   isUploaded: string;
 }
 

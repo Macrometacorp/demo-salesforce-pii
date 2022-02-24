@@ -16,10 +16,10 @@ export default ({
     lastname,
     email,
     phone,
-    state,
-    country,
-    postalCode,
-    title,
+    State,
+    Country,
+    PostalCode,
+    Title,
     isUploaded,
   } = data;
   const isPrivate = isPrivateRegion === "true";
@@ -65,23 +65,23 @@ export default ({
         </span>
       </td>
       <td>
-        <span data-tip={state} className="tooltip tooltip-bottom">
-          {truncate(state)}
+        <span data-tip={State} className="tooltip tooltip-bottom">
+          {truncate(State)}
         </span>
       </td>
       <td>
-        <span data-tip={country} className="tooltip tooltip-bottom">
-          {truncate(country)}
+        <span data-tip={Country} className="tooltip tooltip-bottom">
+          {truncate(Country)}
         </span>
       </td>
       <td>
-        <span data-tip={postalCode} className="tooltip tooltip-bottom">
-          {truncate(postalCode)}
+        <span data-tip={PostalCode} className="tooltip tooltip-bottom">
+          {truncate(PostalCode)}
         </span>
       </td>
       <td>
-        <span data-tip={title} className="tooltip tooltip-bottom">
-          {truncate(title, 12)}
+        <span data-tip={Title} className="tooltip tooltip-bottom">
+          {truncate(Title, 12)}
         </span>
       </td>
       <td className="flex">

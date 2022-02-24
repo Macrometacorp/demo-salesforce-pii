@@ -1,5 +1,6 @@
 import mmcache from "macrometa-realtime-cache";
 import { buildURL, fetchWrapper, getOptions } from "./apiCalls";
+import { v4 as uuidv4 } from "uuid";
 import Papa from "papaparse";
 import {
   Collections,
@@ -39,28 +40,41 @@ const getAccessToken = async () => {
 
 export const bulkLeadRecordUpdate = async () => {
   try {
-    const keys= await cache.allKeys()
-
-    const cachedSavedData:any=[]
-    const keysResult= keys.result
+    const keys = await cache.allKeys();
+    const cachedSavedData: any = [];
+    const keysResult = keys.result;
     for (const key of keysResult) {
       const contents = await cache.get(key);
-      delete contents.value[0]['isUploaded']
-    const result= await  fetch(`${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`, {
-        method: "POST",
-        headers: {
-          Authorization: `apikey ${MM_API_KEY}`,
-        },
-        body: JSON.stringify({query: 'For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname}',bindVars: {token:contents.value[0]['token']} }),
-
-      });
-      const queryResult=await result.json()
-      delete queryResult.result[0]['name']
-      const combinedLeadData={...queryResult.result[0],...contents.value[0]}
-      delete combinedLeadData['token']
-      cachedSavedData.push(combinedLeadData)
-     
-    }  
+      if(!contents.value[0]['isUploaded']){
+      delete contents.value[0]["isUploaded"];
+      const result = await fetch(
+        `${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `apikey ${MM_API_KEY}`,
+          },
+          body: JSON.stringify({
+            query:
+              "For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname}",
+            bindVars: { token: contents.value[0]["token"] },
+          }),
+        }
+      );
+      const queryResult = await result.json();
+      
+      console.log("quy",queryResult)
+    if(queryResult.result.length>0){
+      delete queryResult.result[0]["name"];
+      const combinedLeadData = {
+        ...queryResult.result[0],
+        ...contents.value[0],
+      };
+      delete combinedLeadData["token"];
+      cachedSavedData.push(combinedLeadData);
+    }
+  }
+    }//end of for
     const token = await getAccessToken();
     const csv = Papa.unparse(cachedSavedData);
     const methodOptions = getOptions(
@@ -68,7 +82,9 @@ export const bulkLeadRecordUpdate = async () => {
       token
     );
     const createJobResult = await fetchWrapper(CREATE_JOB_URL, methodOptions);
+    console.log("jobID",createJobResult)
     const jobId = createJobResult.id;
+    console.log("jobID",jobId)
     let uploadBulkApi;
     try {
       const methodOptions = getOptions(
@@ -88,6 +104,8 @@ export const bulkLeadRecordUpdate = async () => {
       );
       const getUrl = buildURL(CREATE_JOB_URL, jobId);
       const closeJob = await fetchWrapper(getUrl, methodOptions);
+      console.log("closeJob",closeJob)
+     await refreshCache();
       return new Response(
         JSON.stringify({ message: "Data Uploaded" }),
         optionsObj
@@ -112,7 +130,7 @@ export const deleteStaleCacheHandler = async () => {
   return new Response(JSON.stringify({ message: "Cache Cleared" }), optionsObj);
 };
 
-export const getresponse = async (token:string) => {
+export const getresponse = async (token: string) => {
   let data;
   try {
     const cacheResponse = await cache.getResponse({ url: token });
@@ -154,7 +172,10 @@ export const leadListHandler = async () => {
   return new Response(body, optionsObj);
 };
 
-export const saveLeadDatahandler = async (leadValues: object,token:string) => {
+export const saveLeadDatahandler = async (
+  leadValues: object,
+  token: string
+) => {
   const newLeadPayload = leadValues;
   let data;
 
@@ -167,6 +188,7 @@ export const saveLeadDatahandler = async (leadValues: object,token:string) => {
   } catch (error) {
     data = [newLeadPayload];
   } finally {
+    console.log("-------------------------saveLeadDatahandlerData",data)
     await cache.setResponse({
       url: token,
       data,
@@ -176,7 +198,7 @@ export const saveLeadDatahandler = async (leadValues: object,token:string) => {
   }
 };
 
-export const newLeadCachedResponseHandler = async (token:string) => {
+export const newLeadCachedResponseHandler = async (token: string) => {
   try {
     const newLeadCachedResponse = await cache.getResponse({
       url: token,
@@ -191,11 +213,72 @@ export const newLeadCachedResponseHandler = async (token:string) => {
 };
 
 export const refreshCache = async () => {
-  // try {
-  //   await deleteStaleCacheHandler();
-  //   await getresponse(token);
-  //   return { isRefresh: true };
-  // } catch (error:any) {
-  //   return { error: true, errorMessage: error?.message || "Something went wrong while updating cache", name: error?.name || "Error" };
-  // }
+  try {
+    const keys = await cache.allKeys();
+    const cachedSavedData: any = [];
+    const keysResult = keys.result;
+    for (const key of keysResult) {
+      const contents = await cache.get(key);
+      cachedSavedData.push(contents.value[0]);
+    }
+    console.log("------cachedSavedData",cachedSavedData)
+    await deleteStaleCacheHandler();
+    const result = await leadListHandler();
+    console.log("res",)
+    const res = await result.json();
+    console.log("------------------res",res)
+    const s: any = [];
+    const notUploadedCachedData= cachedSavedData.filter((elem:any)=> !elem.isUploaded)
+    console.log("notUploadedCachedData",notUploadedCachedData)
+    for (const cac of notUploadedCachedData){
+      const res=  await cache.setResponse({
+        url: cac.token,
+        data:[cac],
+        ttl: -1,
+      })
+    }
+    for (const ks of res.records) {
+      delete ks.attributes;
+      delete ks.Salutation;
+      const result = await fetch(
+        `${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `apikey ${MM_API_KEY}`,
+          },
+          body: JSON.stringify({
+            query:
+              "For doc in users filter doc.email==@email return {token:doc.token}",
+            bindVars: { email: ks.Email },
+          }),
+        }
+      );
+      const queryResult = await result.json();
+      const token = queryResult.result[0] ?? { token: `sf_${uuidv4()}` };
+      console.log("-----------------------queryResult", token);
+      console.log("-----------------------ks", ks);
+
+      s.push({ ...ks, ...token, isUploaded: true });
+let data =[{ ...ks, ...token, isUploaded: true }]
+console.log("data",data)
+     const res=  await cache.setResponse({
+        url: token.token,
+        data,
+        ttl: -1,
+      })
+      console.log("-----------------------res", res);
+    }
+   
+    console.log("-----------------------awai", s);
+
+    return { isRefresh: true };
+  } catch (error: any) {
+    return {
+      error: true,
+      errorMessage:
+        error?.message || "Something went wrong while updating cache",
+      name: error?.name || "Error",
+    };
+  }
 };

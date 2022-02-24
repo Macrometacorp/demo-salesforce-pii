@@ -92,14 +92,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   const {
     query: { email },
   } = queryString.parseUrl(request.url);
-console.log("ss",email)
   let result;
   if (email) {
     result = await handleSearch(request, email.toString());
   } else {
 
     result = await handleList(request);
-    console.log("result",result)
   }
   return result;
 };
@@ -123,7 +121,6 @@ export default () => {
   const actionData = fetchers?.[0]?.data || action;
 
   const userData = allUserData.filter((user: UserData) => !!user?.name?.trim());
-  console.log("user data",userData)
   const [activeRow, setActiveRow] = useState("");
   const [isPrivateRegion, setIsPrivateRegion] = useState("");
   const [currentPage, setCurrentPage] = useState(1);

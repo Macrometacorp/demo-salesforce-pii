@@ -10,30 +10,24 @@ export default async (request: Request, form: FormData) => {
     `${form.get("firstName")?.toString()}:${form
       .get("lastName")
       ?.toString()}` ?? "";
-  const firstName =
-    `${form.get("firstName")?.toString()}:${form
-      .get("lastName")
-      ?.toString()}` ?? "";
-  const lastName =
-    `${form.get("firstName")?.toString()}:${form
-      .get("lastName")
-      ?.toString()}` ?? "";
-  const company = form.get("company")?.toString() ?? "";
-  const leadStatus = form.get("leadStatus")?.toString() ?? "";
+  const firstName = `${form.get("firstName")?.toString()}` ?? "";
+  const lastname = `${form.get("lastName")?.toString()}` ?? "";
+  const Company = form.get("company")?.toString() ?? "";
+  const LeadStatus = form.get("leadStatus")?.toString() ?? "";
   const phone = form.get("phone")?.toString() ?? "";
-  const title = form.get("title")?.toString() ?? "";
-  const noOfEmployees = form.get("noOfEmployees")?.toString() ?? "";
-  const website = form.get("website")?.toString() ?? "";
-  const leadSource = form.get("leadSource")?.toString() ?? "";
-  const industry = form.get("industry")?.toString() ?? "";
+  const Title = form.get("title")?.toString() ?? "";
+  const NumberOfEmployees = form.get("noOfEmployees")?.toString() ?? "";
+  const Website = form.get("website")?.toString() ?? "";
+  const LeadSource = form.get("leadSource")?.toString() ?? "";
+  const Industry = form.get("industry")?.toString() ?? "";
   const email = form.get("email")?.toString() ?? "";
-  const rating = form.get("rating")?.toString() ?? "";
-  const street = form.get("street")?.toString() ?? "";
-  const city = form.get("city")?.toString() ?? "";
-  const state = form.get("state")?.toString() ?? "";
-  const country = form.get("country")?.toString() ?? "";
+  const Rating = form.get("rating")?.toString() ?? "";
+  const Street = form.get("street")?.toString() ?? "";
+  const City = form.get("city")?.toString() ?? "";
+  const State = form.get("state")?.toString() ?? "";
+  const Country = form.get("country")?.toString() ?? "";
   const zipcode = form.get("zipcode")?.toString() ?? "";
-  const isPrivate = isPrivateRegion(country);
+  const isPrivate = isPrivateRegion(Country);
   let token = "";
   try {
     if (isPrivate) {
@@ -48,7 +42,7 @@ export default async (request: Request, form: FormData) => {
         token,
         name,
         firstName,
-        lastName,
+        lastname,
         email,
         phone,
       });
@@ -63,19 +57,19 @@ export default async (request: Request, form: FormData) => {
     await saveLeadDatahandler(
       {
         token,
-        company,
-        Status: leadStatus,
-        title,
-        NumberOfEmployees: noOfEmployees,
-        website,
-        leadSource,
-        industry,
-        rating,
-        street,
-        city,
-        state,
-        country,
-        postalCode: zipcode,
+        Company,
+        Status: LeadStatus,
+        Title,
+        NumberOfEmployees,
+        Website,
+        LeadSource,
+        Industry,
+        Rating,
+        Street,
+        City,
+        State,
+        Country,
+        PostalCode: zipcode,
         isUploaded: false,
       },
       token
