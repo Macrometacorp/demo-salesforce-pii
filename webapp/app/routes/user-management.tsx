@@ -56,6 +56,7 @@ export const action: ActionFunction = async ({
   const actionType =
     form.get(FormButtonActions.Name)?.toString() ??
     form.get(FormButtonActions.RefreshCache)?.toString() ??
+    form.get(FormButtonActions.BulkUpload)?.toString() ??
     "";
   let result;
   switch (actionType) {
@@ -72,6 +73,9 @@ export const action: ActionFunction = async ({
       result = await handleUpload(request, form);
       break;
     case FormButtonActions.RefreshCache:
+      result = await refreshCache() as any
+      break;
+    case FormButtonActions.BulkUpload:
       result = await bulkLeadRecordUpdate() as any;
       break;
     default:

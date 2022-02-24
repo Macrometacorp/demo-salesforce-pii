@@ -1,5 +1,6 @@
 import { parse as parseCSV } from "papaparse";
-import { Form, Link, useSubmit } from "remix";
+import { Form, Link, useFetcher, useSubmit } from "remix";
+import BulkUploadSVG from "~/routes/components/svgs/bulkupload";
 import {
   AppPaths,
   FormButtonActions,
@@ -20,6 +21,7 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
   const [search, setSearch] = useState("");
   const [region, setRegion] = useState("");
   const [showPartialMenu, setShowPartialMenu] = useState(false);
+  const fetcher = useFetcher();
 
   useEffect(() => {
     const {
@@ -96,6 +98,23 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
               >
                 <ContactSVG />
               </button>
+            </div>
+
+            <div className="flex-none">
+              <fetcher.Form
+                method={HttpMethods.Post}
+                action={AppPaths.UserManagement}
+              >
+                <button
+                  className={`btn text-center ml-2 btn-sm mt-[9px]`}
+                  data-tip="Bulk Upload"
+                  name={FormButtonActions.Name}
+                  value={FormButtonActions.BulkUpload}
+                  type="submit"
+                >
+                  <BulkUploadSVG />
+                </button>
+              </fetcher.Form>
             </div>
 
             <div className="flex-none">

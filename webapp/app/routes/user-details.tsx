@@ -186,7 +186,7 @@ export default () => {
               type="text"
               name="company"
               disabled={!isEdit}
-              defaultValue={decryptData?.company}
+              defaultValue={decryptData?.Company}
               onChange={handleInput("company")}
               required
               className="input input-primary input-bordered"
@@ -200,7 +200,7 @@ export default () => {
             <select
               className="select select-bordered"
               name="leadStatus"
-              value={decryptData?.Status}
+              value={decryptData?.LeadStatus}
               onChange={handleInput("Status")}
               required
             >
@@ -228,7 +228,7 @@ export default () => {
               name="title"
               required
               disabled={!isEdit}
-              defaultValue={decryptData?.title}
+              defaultValue={decryptData?.Title}
               onChange={handleInput("title")}
               className="input input-primary input-bordered"
             />
@@ -258,7 +258,7 @@ export default () => {
               name="website"
               required
               disabled={!isEdit}
-              defaultValue={decryptData?.website}
+              defaultValue={decryptData?.Website}
               onChange={handleInput("website")}
               className="input input-primary input-bordered"
             />
@@ -286,7 +286,7 @@ export default () => {
             <select
               className="select select-bordered"
               name="leadSource"
-              value={decryptData?.leadSource}
+              value={decryptData?.LeadSource}
               onChange={handleInput("leadSource")}
               required
             >
@@ -308,7 +308,7 @@ export default () => {
             <select
               className="select select-bordered"
               name="industry"
-              value={decryptData?.industry}
+              value={decryptData?.Industry}
               onChange={handleInput("industry")}
               required
             >
@@ -370,7 +370,7 @@ export default () => {
             <select
               className="select select-bordered"
               name="rating"
-              value={decryptData?.rating}
+              value={decryptData?.Rating}
               onChange={handleInput("rating")}
               required
             >
@@ -392,7 +392,7 @@ export default () => {
               name="street"
               required
               disabled={!isEdit}
-              defaultValue={decryptData?.street}
+              defaultValue={decryptData?.Street}
               onChange={handleInput("street")}
               className="input input-primary input-bordered"
             />
@@ -407,7 +407,7 @@ export default () => {
               name="city"
               required
               disabled={!isEdit}
-              defaultValue={decryptData?.city}
+              defaultValue={decryptData?.City}
               onChange={handleInput("city")}
               className="input input-primary input-bordered"
             />
@@ -422,7 +422,7 @@ export default () => {
               name="state"
               required
               disabled={!isEdit}
-              defaultValue={decryptData?.state}
+              defaultValue={decryptData?.State}
               onChange={handleInput("state")}
               className="input input-primary input-bordered"
             />
@@ -435,7 +435,7 @@ export default () => {
             <input
               type="text"
               disabled
-              defaultValue={decryptData?.country}
+              defaultValue={decryptData?.Country}
               className="input input-primary input-bordered"
             />
           </div>
@@ -448,7 +448,7 @@ export default () => {
               type="text"
               name="zipcode"
               disabled={!isEdit}
-              defaultValue={decryptData?.postalCode}
+              defaultValue={decryptData?.PostalCode}
               onChange={handleInput("postalCode")}
               required
               className="input input-primary input-bordered"

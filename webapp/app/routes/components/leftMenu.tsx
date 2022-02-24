@@ -7,7 +7,7 @@ import { useFetcher } from "remix";
 export default ({ setShowLatencyModal }: HeaderProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const [refreshCache, setRefreshCache] = useState<Number>(0);
-  const [refreshButtonClass, setRefreshButtonClass] = useState("")
+  const [refreshButtonClass, setRefreshButtonClass] = useState("");
   const fetcher = useFetcher();
 
   useEffect(() => {
@@ -24,8 +24,8 @@ export default ({ setShowLatencyModal }: HeaderProps) => {
         setRefreshCache(0);
         setRefreshButtonClass("btn-neutral");
     }
-  }, [fetcher]);
-  
+  }, [fetcher.state]);
+
   useEffect(() => {
     const {
       location: { pathname },

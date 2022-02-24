@@ -75,7 +75,7 @@ export default ({
 
   let content = <div>Getting decrypted data...</div>;
   if (Object.keys(decryptData).length) {
-    const { country, token } = decryptData as UserData;
+    const { Country, token } = decryptData as UserData;
     content = (
       <fetcher.Form action={formAction} method={HttpMethods.Post} ref={formEl}>
         <div className="form-control">
@@ -113,7 +113,7 @@ export default ({
           <input
             type="text"
             name="company"
-            defaultValue={decryptData?.company}
+            defaultValue={decryptData?.Company}
             onChange={handleInput("company")}
             required
             className="input input-primary input-bordered"
@@ -127,7 +127,7 @@ export default ({
           <select
             className="select select-bordered"
             name="leadStatus"
-            value={decryptData?.Status}
+            value={decryptData?.LeadStatus}
             onChange={handleInput("Status")}
             required
           >
@@ -152,7 +152,7 @@ export default ({
             type="text"
             name="title"
             required
-            defaultValue={decryptData?.title}
+            defaultValue={decryptData?.Title}
             onChange={handleInput("title")}
             className="input input-primary input-bordered"
           />
@@ -180,7 +180,7 @@ export default ({
             type="text"
             name="website"
             required
-            defaultValue={decryptData?.website}
+            defaultValue={decryptData?.Website}
             onChange={handleInput("website")}
             className="input input-primary input-bordered"
           />
@@ -207,7 +207,7 @@ export default ({
           <select
             className="select select-bordered"
             name="leadSource"
-            value={decryptData?.leadSource}
+            value={decryptData?.LeadSource}
             onChange={handleInput("leadSource")}
             required
           >
@@ -229,7 +229,7 @@ export default ({
           <select
             className="select select-bordered"
             name="industry"
-            value={decryptData?.industry}
+            value={decryptData?.Industry}
             onChange={handleInput("industry")}
             required
           >
@@ -290,7 +290,7 @@ export default ({
           <select
             className="select select-bordered"
             name="rating"
-            value={decryptData?.rating}
+            value={decryptData?.Rating}
             onChange={handleInput("rating")}
             required
           >
@@ -311,7 +311,7 @@ export default ({
             type="text"
             name="street"
             required
-            defaultValue={decryptData?.street}
+            defaultValue={decryptData?.Street}
             onChange={handleInput("street")}
             className="input input-primary input-bordered"
           />
@@ -325,7 +325,7 @@ export default ({
             type="text"
             name="city"
             required
-            defaultValue={decryptData?.city}
+            defaultValue={decryptData?.City}
             onChange={handleInput("city")}
             className="input input-primary input-bordered"
           />
@@ -339,7 +339,7 @@ export default ({
             type="text"
             name="state"
             required
-            defaultValue={decryptData?.state}
+            defaultValue={decryptData?.State}
             onChange={handleInput("state")}
             className="input input-primary input-bordered"
           />
@@ -352,7 +352,7 @@ export default ({
           <input
             type="text"
             disabled
-            defaultValue={country}
+            defaultValue={Country}
             className="input input-primary input-bordered"
           />
         </div>
@@ -364,7 +364,7 @@ export default ({
           <input
             type="text"
             name="zipcode"
-            defaultValue={decryptData?.postalCode}
+            defaultValue={decryptData?.PostalCode}
             onChange={handleInput("postalCode")}
             required
             className="input input-primary input-bordered"
@@ -380,7 +380,7 @@ export default ({
         <input
           type="text"
           name="country"
-          defaultValue={country}
+          defaultValue={Country}
           className="hidden"
         />
 
