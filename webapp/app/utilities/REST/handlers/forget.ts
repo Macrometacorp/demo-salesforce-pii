@@ -39,7 +39,7 @@ export default async (
     const locationRes = await c8ql(
       request,
       Fabrics.Global,
-      Queries.DeleteLocation(),
+      Queries.DeleteUserLeadInfo(),
       {
         token,
       },

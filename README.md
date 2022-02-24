@@ -98,7 +98,7 @@ The user flow is where a user logs in using his decrypted email address and sees
     REMOVE { _key: @token } IN users
     ```
 
-    **DeleteLocation**
+    **DeleteUserLeadInfo**
 
     ```js
     REMOVE { _key: @token } IN user_locations

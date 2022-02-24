@@ -100,10 +100,10 @@ export const Queries = {
 
   DeleteUser: () => `REMOVE { _key: @token } IN ${Collections.Users}`,
 
-  DeleteLocation: () =>
+  DeleteUserLeadInfo: () =>
     `REMOVE { _key: @token } IN ${Collections.UserLeadInfo}`,
   
-  SalesforceLeadQuery:()=>"Select id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees from lead"
+  SalesforceLeadQuery:()=>"Select id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees from lead"  
   
 };
 

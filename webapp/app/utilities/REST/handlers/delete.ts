@@ -2,6 +2,7 @@ import { Fabrics, Queries } from "~/constants";
 import { isMMToken } from "~/utilities/utils";
 import { c8ql } from "../mm";
 import { piiDeleteUser } from "../pii";
+import { deleteleadListHandler, getCachedData } from "../salesforce";
 
 export default async (
   request: Request,
@@ -33,10 +34,13 @@ export default async (
       }
     }
 
+    const leadInfoData = await getCachedData();
+    const id =leadInfoData.filter((element:any)=>element.token==token)
+    const res=  await   deleteleadListHandler(id[0].Id);
     const locationRes = await c8ql(
       request,
       Fabrics.Global,
-      Queries.DeleteLocation(),
+      Queries.DeleteUserLeadInfo(),
       {
         token,
       },

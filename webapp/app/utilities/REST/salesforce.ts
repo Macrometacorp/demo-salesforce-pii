@@ -38,6 +38,16 @@ const getAccessToken = async () => {
   return token;
 };
 
+export const getCachedData = async() =>{
+  const keys = await cache.allKeys();
+  const cachedSavedData: any = [];
+  const keysResult = keys.result;
+  for (const key of keysResult) {
+    const contents = await cache.get(key);
+    cachedSavedData.push(contents.value[0]);
+}
+return cachedSavedData
+}
 export const bulkLeadRecordUpdate = async () => {
   try {
     const keys = await cache.allKeys();
@@ -167,6 +177,20 @@ export const leadListHandler = async () => {
   );
   const token = await getAccessToken();
   const methodOptions = getOptions({ method: "GET" }, token);
+  const response = await fetchWrapper(getUrl, methodOptions);
+  const body = JSON.stringify(response);
+  return new Response(body, optionsObj);
+};
+
+export const deleteleadListHandler = async (id:string) => {
+  const getUrl = buildURL(
+    SALESFORCE_INSTANCE_URL,
+    SALESFORCE_INSTANCE_SUB_URL,
+    '/sobjects/Lead/',
+    `${id}`
+  );
+  const token = await getAccessToken();
+  const methodOptions = getOptions({ method: "DELETE" }, token);
   const response = await fetchWrapper(getUrl, methodOptions);
   const body = JSON.stringify(response);
   return new Response(body, optionsObj);
