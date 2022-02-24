@@ -25,7 +25,7 @@ import ShareModal from "./components/modals/shareModal";
 import CommonShareableModal from "./components/modals/commonShareableModal";
 import { piiGetUserByToken } from "~/utilities/REST/pii";
 import * as queryString from "query-string";
-// import handleUpdate from "../utilities/REST/handlers/update";
+ import handleUpdate from "../utilities/REST/handlers/update";
 
 export const action: ActionFunction = async ({
   request,
@@ -34,9 +34,9 @@ export const action: ActionFunction = async ({
   const actionType = form.get(FormButtonActions.Name)?.toString() ?? "";
   let result;
   switch (actionType) {
-    // case FormButtonActions.Update:
-    //   result = await handleUpdate(request, form);
-    //   break;
+    case FormButtonActions.Update:
+      result = await handleUpdate(request, form);
+      break;
     default:
       result = {
         error: true,
@@ -544,7 +544,7 @@ export default () => {
                 Edit
               </a>
             )}
-            <a
+            {/* <a
               className="btn btn-outline btn-error"
               type="button"
               onClick={() => {
@@ -553,7 +553,7 @@ export default () => {
               }}
             >
               Forget
-            </a>
+            </a> */}
           </div>
         </fetcher.Form>
       </div>

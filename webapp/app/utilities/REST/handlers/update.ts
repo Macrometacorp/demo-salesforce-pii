@@ -70,7 +70,7 @@ export default async (
             email,
             phone,
           },
-          isApiKey
+          true
         );
         const jsonRes = await res.json();
         if (jsonRes?.error) {
@@ -117,7 +117,8 @@ export default async (
       Queries.SearchUserByToken(),
       {
         token,
-      }
+      },
+      true
     );
 
     const result: any = await userData.json();

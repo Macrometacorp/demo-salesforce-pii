@@ -41,7 +41,7 @@ export interface LeadInfo {
   IsUnreadByOwner ?: string;
   token: string;
   Company: string;
-  LeadStatus: string;
+  Status: string;
   Title: string;
   NumberOfEmployees: string;
   Website:string;
