@@ -108,7 +108,7 @@ export default async (
           },
         ],
       },
-      isApiKey
+      true
     );
 
     const userData = await c8ql(

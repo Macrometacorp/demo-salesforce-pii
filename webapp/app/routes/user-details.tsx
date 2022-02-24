@@ -44,8 +44,7 @@ export const action: ActionFunction = async ({
         errorMessage: "Unhandled form action",
       };
   }
-  return {} as any;
-  // return result;
+  return result;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -109,6 +108,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       phone,
       token: piiToken,
       isPrivateRecord,
+      _key: locationData._key
     };
     return decryptedData;
   } catch (error: any) {
@@ -126,6 +126,8 @@ export default () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [sharedEnpoint, setSharedEndpoint] = useState("");
   const [isEdit, setIsEdit] = useState(false);
+  const [editMessage, setEditMessage] = useState("Edit");
+  const [editClass , setEditClass] = useState("btn-info");
   const [decryptData, setDecryptData] = useState({} as UserData);
 
   const handleInput = (inputType: string) => {
@@ -141,6 +143,25 @@ export default () => {
   useEffect(() => {
     setDecryptData(loaderData);
   }, [loaderData]);
+
+  useEffect(() => {
+    console.log("data")
+    switch (fetcher.state) {
+      case "submitting":
+        setEditClass("btn-warning");
+        setEditMessage("Updating Data ...");
+        break;
+      case "loading":
+        setEditClass("btn-success");
+        setEditMessage("Data Updated");
+        break;
+      default:
+        setEditClass("btn-info");
+        setEditMessage("Update");
+        setIsEdit(false);
+    }
+  }, [fetcher.state])
+  
 
   return (
     <div className="card  shadow-lg max-w-lg mx-auto mt-10 hover:shadow-2xl">
@@ -476,6 +497,20 @@ export default () => {
           />
 
           <input
+          type="text"
+          name="country"
+          defaultValue={decryptData?.Country}
+          className="hidden"
+        />
+
+        <input
+          type="text"
+          name="_key"
+          defaultValue={decryptData?._key}
+          className="hidden"
+        />
+        
+          <input
             type="text"
             name="IsUnreadByOwner"
             defaultValue={decryptData?.IsUnreadByOwner}
@@ -492,12 +527,12 @@ export default () => {
           <div className="justify-center card-actions">
             {isEdit ? (
               <button
-                className="btn btn-outline btn-info"
+                className={`btn btn-outline ${editClass}`}
                 name={FormButtonActions.Name}
                 value={FormButtonActions.Update}
                 type="submit"
               >
-                Update
+                {editMessage}
               </button>
             ) : (
               <a

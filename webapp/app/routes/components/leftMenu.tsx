@@ -14,7 +14,7 @@ export default ({ setShowLatencyModal }: HeaderProps) => {
     switch (fetcher.state) {
       case "submitting":
         setRefreshCache(1);
-        setRefreshButtonClass("btn-info");
+        setRefreshButtonClass("btn-warning");
         break;
       case "loading":
         setRefreshCache(2);
@@ -24,7 +24,7 @@ export default ({ setShowLatencyModal }: HeaderProps) => {
         setRefreshCache(0);
         setRefreshButtonClass("btn-neutral");
     }
-  }, [fetcher]);
+  }, [fetcher.state]);
 
   useEffect(() => {
     const {
