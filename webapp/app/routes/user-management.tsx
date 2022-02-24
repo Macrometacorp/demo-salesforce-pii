@@ -50,7 +50,7 @@ import handleSearch from "../utilities/REST/handlers/search";
 import { bulkLeadRecordUpdate, refreshCache } from '../utilities/REST/salesforce';
 
 export const action: ActionFunction = async ({
-  request,
+  request
 }): Promise<UserManagementActionResult> => {
   const form = await request.formData();
   const actionType =
@@ -79,13 +79,13 @@ export const action: ActionFunction = async ({
       result = await bulkLeadRecordUpdate() as any;
       break;
     default:
-      result = {
-        error: true,
-        name: "Form action",
-        errorMessage: "Unhandled form action",
-      };
+      result = await bulkLeadRecordUpdate() as any;
+      // result = {
+      //   error: true,
+      //   name: "Form action",
+      //   errorMessage: "Unhandled form action",
+      // };
   }
-
   return result;
 };
 
@@ -172,6 +172,7 @@ export default () => {
         isRefresh,
         errorMessage,
         name,
+        isBulkUpload
       } = actionData;
       let toastType = error
         ? ToastTypes.Error
@@ -191,6 +192,8 @@ export default () => {
           toastMessage = "Your record is deleted and will reflect shortly";
         } else if (isRefresh) {
           toastMessage = "Cache updated successfully";
+        } else if (isBulkUpload) {
+          toastMessage = "Bulk uploaded successfully";
         }
       }
       

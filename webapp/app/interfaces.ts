@@ -37,6 +37,8 @@ export interface LocationData {
 }
 
 export interface LeadInfo {
+  Id ?: string;
+  IsUnreadByOwner ?: string;
   token: string;
   Company: string;
   LeadStatus: string;

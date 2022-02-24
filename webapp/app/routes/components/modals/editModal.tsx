@@ -56,6 +56,8 @@ export default ({
               ...modalUserDetails,
               token,
               name: login,
+              firstName: login.toString().split(":")[0],
+              lastname: login.toString().split(":")[1],
               email,
               phone,
             };
@@ -377,10 +379,39 @@ export default ({
           defaultValue={token}
           className="hidden"
         />
+
+        <input
+          type="text"
+          name="_key"
+          defaultValue={decryptData?._key}
+          className="hidden"
+        />
+        
         <input
           type="text"
           name="country"
           defaultValue={Country}
+          className="hidden"
+        />
+
+        <input
+          type="text"
+          name="Id"
+          defaultValue={decryptData?.Id}
+          className="hidden"
+        />
+
+        <input
+          type="text"
+          name="IsUnreadByOwner"
+          defaultValue={decryptData?.IsUnreadByOwner}
+          className="hidden"
+        />
+
+        <input
+          type="text"
+          name="isUploaded"
+          defaultValue={decryptData?.isUploaded}
           className="hidden"
         />
 

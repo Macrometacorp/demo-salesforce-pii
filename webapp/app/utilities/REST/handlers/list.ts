@@ -31,6 +31,7 @@ export default async (request: Request) => {
     return {
       ...user,
       ...location?.value[0],
+      _key: location?._key,
     };
   });
   return result;

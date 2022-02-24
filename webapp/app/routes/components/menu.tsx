@@ -106,7 +106,7 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
                 action={AppPaths.UserManagement}
               >
                 <button
-                  className={`btn text-center ml-2 btn-sm mt-[9px]`}
+                  className={`btn btn-square btn-ghost tooltip`}
                   data-tip="Bulk Upload"
                   name={FormButtonActions.Name}
                   value={FormButtonActions.BulkUpload}

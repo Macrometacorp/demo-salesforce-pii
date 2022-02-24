@@ -86,8 +86,8 @@ export const Queries = {
   InsertLocation: () =>
     `INSERT { _key: @token, token: @token, state: @state, country: @country, zipcode: @zipcode, job_title: @job_title } INTO ${Collections.UserLeadInfo}`,
 
-  UpdateLocation: (updateWhat: string) =>
-    `FOR loc in ${Collections.UserLeadInfo} UPDATE { _key: @token, ${updateWhat} } IN ${Collections.UserLeadInfo}`,
+  UpdateLocation: () =>
+  `UPDATE @_key with {"value": @value } IN ${Collections.UserLeadInfo}`,
 
   SearchUserByEmail: () =>
     `FOR user IN ${Collections.Users} FILTER user.email == @email RETURN user`,
@@ -96,7 +96,33 @@ export const Queries = {
     `FOR user IN ${Collections.Users} FILTER user._key == @token RETURN user`,
 
   SearchLocationByToken: () =>
-    `FOR location IN ${Collections.UserLeadInfo} FILTER location.token == @token RETURN location`,
+    `FOR doc in ${Collections.UserLeadInfo} 
+    filter doc.value[*].token ANY == @token
+    RETURN {
+      "Id": doc.value[0].Id,
+      "Name": doc.value[0].Name,
+      "FirstName": doc.value[0].FirstName,
+      "LastName": doc.value[0].LastName,
+      "Title": doc.value[0].Title,
+      "Company": doc.value[0].Company,
+      "Street": doc.value[0].Street,
+      "City": doc.value[0].City,
+      "State": doc.value[0].State,
+      "PostalCode": doc.value[0].PostalCode,
+      "Country": doc.value[0].Country,
+      "Phone": doc.value[0].Phone,
+      "Email": doc.value[0].Email,
+      "Website": doc.value[0].Website,
+      "LeadSource": doc.value[0].LeadSource,
+      "Status": doc.value[0].Status,
+      "Industry": doc.value[0].Industry,
+      "Rating": doc.value[0].Rating,
+      "IsUnreadByOwner": doc.value[0].IsUnreadByOwner,
+      "NumberOfEmployees": doc.value[0].NumberOfEmployees,
+      "token": doc.value[0].token,
+      "isUploaded": doc.value[0].isUploaded,
+      "_key": doc._key
+  }`,
 
   DeleteUser: () => `REMOVE { _key: @token } IN ${Collections.Users}`,
 

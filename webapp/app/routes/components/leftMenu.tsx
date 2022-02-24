@@ -24,7 +24,7 @@ export default ({ setShowLatencyModal }: HeaderProps) => {
         setRefreshCache(0);
         setRefreshButtonClass("btn-neutral");
     }
-  }, [fetcher.state]);
+  }, [fetcher]);
 
   useEffect(() => {
     const {

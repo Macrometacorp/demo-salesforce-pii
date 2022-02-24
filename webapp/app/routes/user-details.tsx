@@ -58,7 +58,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (!token && !(await isLoggedIn(request))) {
     throw new Response("Unauthorized", { status: 401 });
   }
-  
+
   const isPrivateRecord = !isMMToken(piiToken);
   const piiPromise = isPrivateRecord
     ? piiGetUserByToken(piiToken)
@@ -96,13 +96,15 @@ export const loader: LoaderFunction = async ({ request }) => {
     const parsedPiiResponse = isPrivateRecord
       ? JSON.parse(piiResponse)?.data
       : piiResponse?.result?.[0];
-    const locationData =
-      locationResponse?.result?.[0];
+    const locationData = locationResponse?.result?.[0];
     const { login, email, phone, name } = parsedPiiResponse;
+    const annoName = isPrivateRecord ? login : name;
     const decryptedData: UserData = {
       ...locationData,
       ...parsedPiiResponse,
-      name: isPrivateRecord ? login : name,
+      name: annoName,
+      firstName: annoName.toString().split(":")[0],
+      lastname: annoName.toString().split(":")[1],
       email,
       phone,
       token: piiToken,
@@ -137,9 +139,9 @@ export default () => {
   };
 
   useEffect(() => {
-    setDecryptData(loaderData)
+    setDecryptData(loaderData);
   }, [loaderData]);
-  
+
   return (
     <div className="card  shadow-lg max-w-lg mx-auto mt-10 hover:shadow-2xl">
       <div className="card-body">
@@ -200,9 +202,10 @@ export default () => {
             <select
               className="select select-bordered"
               name="leadStatus"
-              value={decryptData?.LeadStatus}
+              value={(decryptData as any)?.Status}
               onChange={handleInput("Status")}
               required
+              disabled={!isEdit}
             >
               <option disabled selected>
                 Lead Status
@@ -286,9 +289,10 @@ export default () => {
             <select
               className="select select-bordered"
               name="leadSource"
-              value={decryptData?.LeadSource}
-              onChange={handleInput("leadSource")}
+              value={(decryptData as any)?.Status}
+              onChange={handleInput("Status")}
               required
+              disabled={!isEdit}
             >
               <option disabled aria-label="None" value="" selected>
                 Lead Source
@@ -311,6 +315,7 @@ export default () => {
               value={decryptData?.Industry}
               onChange={handleInput("industry")}
               required
+              disabled={!isEdit}
             >
               <option disabled selected aria-label="None" value="">
                 Industry
@@ -373,6 +378,7 @@ export default () => {
               value={decryptData?.Rating}
               onChange={handleInput("rating")}
               required
+              disabled={!isEdit}
             >
               <option disabled selected aria-label="None" value="">
                 Rating
@@ -454,6 +460,34 @@ export default () => {
               className="input input-primary input-bordered"
             />
           </div>
+
+          <input
+            type="text"
+            name="token"
+            defaultValue={decryptData?.token}
+            className="hidden"
+          />
+
+          <input
+            type="text"
+            name="Id"
+            defaultValue={decryptData?.Id}
+            className="hidden"
+          />
+
+          <input
+            type="text"
+            name="IsUnreadByOwner"
+            defaultValue={decryptData?.IsUnreadByOwner}
+            className="hidden"
+          />
+
+          <input
+            type="text"
+            name="isUploaded"
+            defaultValue={decryptData?.isUploaded}
+            className="hidden"
+          />
 
           <div className="justify-center card-actions">
             {isEdit ? (

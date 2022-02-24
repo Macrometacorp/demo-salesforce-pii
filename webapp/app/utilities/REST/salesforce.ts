@@ -55,6 +55,7 @@ export const bulkLeadRecordUpdate = async () => {
     const keysResult = keys.result;
     for (const key of keysResult) {
       const contents = await cache.get(key);
+      delete contents.value[0]["isEditable"];
       if(!contents.value[0]['isUploaded']){
       delete contents.value[0]["isUploaded"];
       const result = await fetch(
@@ -121,6 +122,7 @@ export const bulkLeadRecordUpdate = async () => {
         optionsObj
       );
     }
+    return { isBulkUpload: true };
   } catch (err) {
     throw err;
     // return new Response("No data to upload");
