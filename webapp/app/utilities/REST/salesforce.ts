@@ -9,7 +9,7 @@ import {
   optionsObj,
   Queries,
 } from "~/constants";
-import { c8ql } from "./mm";
+
 
 const cache = new (mmcache as any)({
   url: "https://gdn.paas.macrometa.io",
@@ -20,7 +20,7 @@ const cache = new (mmcache as any)({
 
 const CREATE_JOB_URL = `${SALESFORCE_INSTANCE_URL}${SALESFORCE_INSTANCE_SUB_URL}${SALESFORCE_JOB_INGEST}`;
 
-const getAccessToken = async () => {
+export const getAccessToken = async () => {
   const getUrl = buildURL(
     SALESFORCE_LOGIN_URL,
     "/services/oauth2",
@@ -73,8 +73,6 @@ export const bulkLeadRecordUpdate = async () => {
         }
       );
       const queryResult = await result.json();
-      
-      console.log("quy",queryResult)
     if(queryResult.result.length>0){
       delete queryResult.result[0]["name"];
       const combinedLeadData = {
@@ -93,7 +91,6 @@ export const bulkLeadRecordUpdate = async () => {
       token
     );
     const createJobResult = await fetchWrapper(CREATE_JOB_URL, methodOptions);
-    console.log("jobID",createJobResult)
     const jobId = createJobResult.id;
     console.log("jobID",jobId)
     let uploadBulkApi;
@@ -198,6 +195,20 @@ export const deleteleadListHandler = async (id:string) => {
   return new Response(body, optionsObj);
 };
 
+export const updateleadListHandler = async (id:string,data:any) => {
+  const getUrl = buildURL(
+    SALESFORCE_INSTANCE_URL,
+    SALESFORCE_INSTANCE_SUB_URL,
+    '/sobjects/Lead/',
+    `${id}`
+  );
+  const token = await getAccessToken();
+  const methodOptions = getOptions({ method: "POST"}, token);
+  const response = await fetchWrapper(getUrl, methodOptions);
+  const body = JSON.stringify(response);
+  return new Response(body, optionsObj);
+};
+
 export const saveLeadDatahandler = async (
   leadValues: object,
   token: string
@@ -214,7 +225,6 @@ export const saveLeadDatahandler = async (
   } catch (error) {
     data = [newLeadPayload];
   } finally {
-    console.log("-------------------------saveLeadDatahandlerData",data)
     await cache.setResponse({
       url: token,
       data,
@@ -247,15 +257,14 @@ export const refreshCache = async () => {
       const contents = await cache.get(key);
       cachedSavedData.push(contents.value[0]);
     }
-    console.log("------cachedSavedData",cachedSavedData)
+
     await deleteStaleCacheHandler();
     const result = await leadListHandler();
-    console.log("res",)
+
     const res = await result.json();
-    console.log("------------------res",res)
+    
     const s: any = [];
     const notUploadedCachedData= cachedSavedData.filter((elem:any)=> !elem.isUploaded)
-    console.log("notUploadedCachedData",notUploadedCachedData)
     for (const cac of notUploadedCachedData){
       const res=  await cache.setResponse({
         url: cac.token,
@@ -282,21 +291,17 @@ export const refreshCache = async () => {
       );
       const queryResult = await result.json();
       const token = queryResult.result[0] ?? { token: `sf_${uuidv4()}` };
-      console.log("-----------------------queryResult", token);
-      console.log("-----------------------ks", ks);
+
 
       s.push({ ...ks, ...token, isUploaded: true });
 let data =[{ ...ks, ...token, isUploaded: true }]
-console.log("data",data)
      const res=  await cache.setResponse({
         url: token.token,
         data,
         ttl: -1,
       })
-      console.log("-----------------------res", res);
     }
    
-    console.log("-----------------------awai", s);
 
     return { isRefresh: true };
   } catch (error: any) {

@@ -242,7 +242,6 @@ export default () => {
                   action: ActionButtons,
                   details: UserData
                 ) => {
-                  console.log("Da",data)
                   setModalUserDetails(details);
                   switch (action) {
                     case ActionButtons.Show:

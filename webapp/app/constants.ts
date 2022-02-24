@@ -17,7 +17,7 @@ export enum AppPaths {
   UserManagement = "/user-management",
   Logout = "/logout",
   UserLogin = "/user-login",
-  UserDetails = "/user-details",
+  UserDetails = "/user-details"
 }
 
 export enum ModalPaths {
@@ -50,7 +50,7 @@ export const HEADINGS = [
 
 export enum ResourceEndpoints {
   Edit = "/edit",
-  Forget = "/forget",
+  Forget = "/forget"
 }
 
 export enum Fabrics {

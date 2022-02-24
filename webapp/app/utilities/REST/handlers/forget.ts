@@ -18,7 +18,6 @@ export default async (
         response.text()
       );
       // error if expected format is not received
-      console.log(resText);
       const res = JSON.parse(resText);
       exptoken = res.exptoken;
     } else {

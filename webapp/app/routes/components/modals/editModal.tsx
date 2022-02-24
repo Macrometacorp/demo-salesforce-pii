@@ -61,8 +61,6 @@ export default ({
               email,
               phone,
             };
-
-            console.log(decryptedData);
             setDecryptData(decryptedData);
           })
           .catch((error) => {
@@ -129,11 +127,11 @@ export default ({
           <select
             className="select select-bordered"
             name="leadStatus"
-            value={decryptData?.LeadStatus}
+            value={(decryptData as any)?.Status}
             onChange={handleInput("Status")}
             required
           >
-            <option disabled selected>
+            <option disabled aria-label="None" value="" selected>
               Lead Status
             </option>
 
