@@ -47,7 +47,7 @@ import handleDelete from "../utilities/REST/handlers/delete";
 import handleUpload from "../utilities/REST/handlers/upload";
 import handleList from "../utilities/REST/handlers/list";
 import handleSearch from "../utilities/REST/handlers/search";
-import { refreshCache } from '../utilities/REST/salesforce';
+import { bulkLeadRecordUpdate, refreshCache } from '../utilities/REST/salesforce';
 
 export const action: ActionFunction = async ({
   request,
@@ -72,7 +72,7 @@ export const action: ActionFunction = async ({
       result = await handleUpload(request, form);
       break;
     case FormButtonActions.RefreshCache:
-      result = await refreshCache() as any;
+      result = await bulkLeadRecordUpdate() as any;
       break;
     default:
       result = {
@@ -92,12 +92,14 @@ export const loader: LoaderFunction = async ({ request }) => {
   const {
     query: { email },
   } = queryString.parseUrl(request.url);
-
+console.log("ss",email)
   let result;
   if (email) {
     result = await handleSearch(request, email.toString());
   } else {
+
     result = await handleList(request);
+    console.log("result",result)
   }
   return result;
 };
@@ -121,6 +123,7 @@ export default () => {
   const actionData = fetchers?.[0]?.data || action;
 
   const userData = allUserData.filter((user: UserData) => !!user?.name?.trim());
+  console.log("user data",userData)
   const [activeRow, setActiveRow] = useState("");
   const [isPrivateRegion, setIsPrivateRegion] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -235,6 +238,7 @@ export default () => {
                   action: ActionButtons,
                   details: UserData
                 ) => {
+                  console.log("Da",data)
                   setModalUserDetails(details);
                   switch (action) {
                     case ActionButtons.Show:

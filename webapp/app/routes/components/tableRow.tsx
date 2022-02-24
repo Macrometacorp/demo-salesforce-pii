@@ -9,8 +9,19 @@ export default ({
   isPrivateRegion,
   onActionButtonClicked,
 }: RowProps) => {
-  const { token, name, email, phone, state, country, zipcode, job_title } =
-    data;
+  const {
+    token,
+    name,
+    firstName,
+    lastname,
+    email,
+    phone,
+    state,
+    country,
+    postalCode,
+    title,
+    isUploaded,
+  } = data;
   const isPrivate = isPrivateRegion === "true";
   const isPrivateRecord = !isMMToken(token);
 
@@ -25,6 +36,7 @@ export default ({
   return (
     <tr
       className={activeRow === token ? "active" : ""}
+      style={{ color: !isUploaded ? "green" : "black" }}
       onMouseEnter={() => {
         setActiveRow(token);
       }}
@@ -32,13 +44,46 @@ export default ({
         setActiveRow("");
       }}
     >
-      <td><span data-tip={name} className="tooltip tooltip-bottom">{truncate(name)}</span></td>
-      <td><span data-tip={email} className="tooltip tooltip-bottom">{truncate(email)}</span></td>
-      <td><span data-tip={phone} className="tooltip tooltip-bottom">{truncate(phone)}</span></td>
-      <td><span data-tip={state} className="tooltip tooltip-bottom">{truncate(state)}</span></td>
-      <td><span data-tip={country} className="tooltip tooltip-bottom">{truncate(country)}</span></td>
-      <td><span data-tip={zipcode} className="tooltip tooltip-bottom">{truncate(zipcode)}</span></td>
-      <td><span data-tip={job_title} className="tooltip tooltip-bottom">{truncate(job_title,12)}</span></td>
+      <td>
+        <span data-tip={firstName} className="tooltip tooltip-bottom">
+          {truncate(firstName)}
+        </span>
+      </td>
+      <td>
+        <span data-tip={lastname} className="tooltip tooltip-bottom">
+          {truncate(lastname)}
+        </span>
+      </td>
+      <td>
+        <span data-tip={email} className="tooltip tooltip-bottom">
+          {truncate(email)}
+        </span>
+      </td>
+      <td>
+        <span data-tip={phone} className="tooltip tooltip-bottom">
+          {truncate(phone)}
+        </span>
+      </td>
+      <td>
+        <span data-tip={state} className="tooltip tooltip-bottom">
+          {truncate(state)}
+        </span>
+      </td>
+      <td>
+        <span data-tip={country} className="tooltip tooltip-bottom">
+          {truncate(country)}
+        </span>
+      </td>
+      <td>
+        <span data-tip={postalCode} className="tooltip tooltip-bottom">
+          {truncate(postalCode)}
+        </span>
+      </td>
+      <td>
+        <span data-tip={title} className="tooltip tooltip-bottom">
+          {truncate(title, 12)}
+        </span>
+      </td>
       <td className="flex">
         <button
           className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-blue-600 mr-2 ${

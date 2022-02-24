@@ -22,21 +22,43 @@ export interface PiiData {
   name: string;
   phone: string;
   token: string;
+  firstName: string;
+  lastname: string;
 }
 
 export interface LocationData {
-  token: string;
-  state: string;
-  country: string;
-  zipcode: string;
-  job_title: string;
+
+    _id: string;
+    _key: string;
+    _rev: string;
+    expireAt: number,
+    value: Array<LeadInfo>
+
 }
 
-export interface UserData extends PiiData, LocationData {}
+export interface LeadInfo {
+  token: string;
+  company: string;
+  leadStatus: string;
+  title: string;
+  NumberOfEmployees: string;
+  website:string;
+  leadSource: string;
+  industry: string;
+  rating: string;
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  isUploaded: string;
+}
+
+export interface UserData extends PiiData, LocationData,LeadInfo  {}
 
 export interface RowProps {
   activeRow: string;
-  data: PiiData & LocationData;
+  data: PiiData & LocationData & LeadInfo;
   isPrivateRegion: string;
   setActiveRow: (arg: string) => void;
   onActionButtonClicked: (action: ActionButtons, details: UserData) => void;

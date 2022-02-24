@@ -18,16 +18,19 @@ export default async (request: Request) => {
     getUsersPromise,
     getLocationsPromise,
   ]);
-
+// console.log("allResponses",allResponses)
   const users: Array<UserData> = allResponses?.[0]?.result ?? [];
   const locations: Array<LocationData> = allResponses?.[1]?.result ?? [];
-
+  // console.log("locations",locations)
   const result = users?.map((user) => {
     const { token } = user;
-    const location = locations.find((location) => location.token === token);
+    // console.log("token",token)
+    const location = locations.find((location) => {
+      // console.log("------location",location.value[0])
+      return location.value[0].token === token});
     return {
       ...user,
-      ...location,
+      ...location?.value[0],
     };
   });
   return result;

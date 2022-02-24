@@ -36,7 +36,8 @@ export enum ToastTypes {
 }
 
 export const HEADINGS = [
-  "name",
+  "first name",
+  "last name",
   "email",
   "phone",
   "state",
@@ -52,13 +53,13 @@ export enum ResourceEndpoints {
 }
 
 export enum Fabrics {
-  Global = "pii_global",
-  Eu = "pii_eu",
+  Global = "pii_global_sf",
+  Eu = "pii_eu_sf",
 }
 
 export enum Collections {
   Users = "users",
-  UserLocations = "user_locations",
+  UserLeadInfo = "user_lead_info",
 }
 
 export const MM_TOKEN_PREFIX = "mm_";
@@ -73,7 +74,7 @@ export const SHAREABLE_CURL_COMMAND_MESSAGE =
 export const Queries = {
   GetUsers: () => `FOR doc IN ${Collections.Users} RETURN doc`,
 
-  GetLocations: () => `FOR doc in ${Collections.UserLocations} RETURN doc`,
+  GetLocations: () => `FOR doc in ${Collections.UserLeadInfo} RETURN doc`,
 
   InsertUser: () =>
     `INSERT { _key: @token, token: @token, name: @name, email: @email, phone: @phone } INTO ${Collections.Users}`,
@@ -82,10 +83,10 @@ export const Queries = {
     `FOR user IN ${Collections.Users} UPDATE { _key: @token, ${updateWhat} } IN ${Collections.Users}`,
 
   InsertLocation: () =>
-    `INSERT { _key: @token, token: @token, state: @state, country: @country, zipcode: @zipcode, job_title: @job_title } INTO ${Collections.UserLocations}`,
+    `INSERT { _key: @token, token: @token, state: @state, country: @country, zipcode: @zipcode, job_title: @job_title } INTO ${Collections.UserLeadInfo}`,
 
   UpdateLocation: (updateWhat: string) =>
-    `FOR loc in ${Collections.UserLocations} UPDATE { _key: @token, ${updateWhat} } IN ${Collections.UserLocations}`,
+    `FOR loc in ${Collections.UserLeadInfo} UPDATE { _key: @token, ${updateWhat} } IN ${Collections.UserLeadInfo}`,
 
   SearchUserByEmail: () =>
     `FOR user IN ${Collections.Users} FILTER user.email == @email RETURN user`,
@@ -94,12 +95,12 @@ export const Queries = {
     `FOR user IN ${Collections.Users} FILTER user._key == @token RETURN user`,
 
   SearchLocationByToken: () =>
-    `FOR location IN ${Collections.UserLocations} FILTER location.token == @token RETURN location`,
+    `FOR location IN ${Collections.UserLeadInfo} FILTER location.token == @token RETURN location`,
 
   DeleteUser: () => `REMOVE { _key: @token } IN ${Collections.Users}`,
 
   DeleteLocation: () =>
-    `REMOVE { _key: @token } IN ${Collections.UserLocations}`,
+    `REMOVE { _key: @token } IN ${Collections.UserLeadInfo}`,
   
   SalesforceLeadQuery:()=>"Select id,salutation,name,firstname,lastname,title,company,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner from lead"
   
@@ -116,6 +117,7 @@ export const createJobBody = JSON.stringify({
   object: "Lead",
   operation: "insert",
   contentType: "CSV",
+  lineEnding : "CRLF"
 });
 
 

@@ -1,13 +1,20 @@
 import mmcache from "macrometa-realtime-cache";
 import { buildURL, fetchWrapper, getOptions } from "./apiCalls";
 import Papa from "papaparse";
-import { createJobBody, optionsObj, Queries } from "~/constants";
+import {
+  Collections,
+  createJobBody,
+  Fabrics,
+  optionsObj,
+  Queries,
+} from "~/constants";
+import { c8ql } from "./mm";
 
 const cache = new (mmcache as any)({
   url: "https://gdn.paas.macrometa.io",
   apiKey: MM_API_KEY,
-  name: "pii_users",
-  fabricName: "pii_global_sf",
+  name: Collections.UserLeadInfo,
+  fabricName: Fabrics.Global,
 });
 
 const CREATE_JOB_URL = `${SALESFORCE_INSTANCE_URL}${SALESFORCE_INSTANCE_SUB_URL}${SALESFORCE_JOB_INGEST}`;
@@ -32,9 +39,30 @@ const getAccessToken = async () => {
 
 export const bulkLeadRecordUpdate = async () => {
   try {
-    let cachedSavedData = await cache.getResponse({ url: "saveData" });
+    const keys= await cache.allKeys()
+
+    const cachedSavedData:any=[]
+    const keysResult= keys.result
+    for (const key of keysResult) {
+      const contents = await cache.get(key);
+      delete contents.value[0]['isUploaded']
+    const result= await  fetch(`${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`, {
+        method: "POST",
+        headers: {
+          Authorization: `apikey ${MM_API_KEY}`,
+        },
+        body: JSON.stringify({query: 'For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname}',bindVars: {token:contents.value[0]['token']} }),
+
+      });
+      const queryResult=await result.json()
+      delete queryResult.result[0]['name']
+      const combinedLeadData={...queryResult.result[0],...contents.value[0]}
+      delete combinedLeadData['token']
+      cachedSavedData.push(combinedLeadData)
+     
+    }  
     const token = await getAccessToken();
-    const csv = Papa.unparse(cachedSavedData.value);
+    const csv = Papa.unparse(cachedSavedData);
     const methodOptions = getOptions(
       { method: "POST", body: createJobBody },
       token
@@ -84,10 +112,10 @@ export const deleteStaleCacheHandler = async () => {
   return new Response(JSON.stringify({ message: "Cache Cleared" }), optionsObj);
 };
 
-export const getresponse = async () => {
+export const getresponse = async (token:string) => {
   let data;
   try {
-    const cacheResponse = await cache.getResponse({ url: "cachedSFResponse" });
+    const cacheResponse = await cache.getResponse({ url: token });
     data = cacheResponse.value;
   } catch (err: any) {
     if (err.error && err.code === 404) {
@@ -97,7 +125,7 @@ export const getresponse = async () => {
       if (data.statusCode !== 401) {
         try {
           await cache.setResponse({
-            url: "cachedSFResponse",
+            url: token,
             data,
             ttl: 10800,
           });
@@ -126,19 +154,21 @@ export const leadListHandler = async () => {
   return new Response(body, optionsObj);
 };
 
-export const saveLeadDatahandler = async (leadValues: object) => {
+export const saveLeadDatahandler = async (leadValues: object,token:string) => {
   const newLeadPayload = leadValues;
   let data;
 
   try {
-    let newLeadCachedResponse = await cache.getResponse({ url: "saveData" });
+    let newLeadCachedResponse = await cache.getResponse({
+      url: token,
+    });
     newLeadCachedResponse.value.push(newLeadPayload); //normal  json
     data = newLeadCachedResponse.value;
   } catch (error) {
     data = [newLeadPayload];
   } finally {
     await cache.setResponse({
-      url: "saveData",
+      url: token,
       data,
       ttl: -1,
     });
@@ -146,9 +176,11 @@ export const saveLeadDatahandler = async (leadValues: object) => {
   }
 };
 
-export const newLeadCachedResponseHandler = async () => {
+export const newLeadCachedResponseHandler = async (token:string) => {
   try {
-    const newLeadCachedResponse = await cache.getResponse({ url: "saveData" });
+    const newLeadCachedResponse = await cache.getResponse({
+      url: token,
+    });
     return new Response(
       JSON.stringify({ value: newLeadCachedResponse.value }),
       optionsObj
@@ -159,11 +191,11 @@ export const newLeadCachedResponseHandler = async () => {
 };
 
 export const refreshCache = async () => {
-  try {
-    await deleteStaleCacheHandler();
-    await getresponse();
-    return { isRefresh: true };
-  } catch (error:any) {
-    return { error: true, errorMessage: error?.message || "Something went wrong while updating cache", name: error?.name || "Error" };
-  }
+  // try {
+  //   await deleteStaleCacheHandler();
+  //   await getresponse(token);
+  //   return { isRefresh: true };
+  // } catch (error:any) {
+  //   return { error: true, errorMessage: error?.message || "Something went wrong while updating cache", name: error?.name || "Error" };
+  // }
 };
