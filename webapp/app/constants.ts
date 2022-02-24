@@ -41,10 +41,12 @@ export const HEADINGS = [
   "last name",
   "email",
   "phone",
-  "state",
+  "company",
+  "status",
+  "source",
   "country",
-  "zipcode",
-  "job title",
+  "postal code",
+  "title",
   "actions",
 ];
 

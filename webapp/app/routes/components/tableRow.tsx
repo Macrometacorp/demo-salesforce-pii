@@ -21,6 +21,9 @@ export default ({
     PostalCode,
     Title,
     isUploaded,
+    Company,
+    Status,
+    LeadSource: Source
   } = data;
   const isPrivate = isPrivateRegion === "true";
   const isPrivateRecord = !isMMToken(token);
@@ -65,8 +68,18 @@ export default ({
         </span>
       </td>
       <td>
-        <span data-tip={State} className="tooltip tooltip-bottom">
-          {truncate(State)}
+        <span data-tip={Company} className="tooltip tooltip-bottom">
+          {truncate(Company)}
+        </span>
+      </td>
+      <td>
+        <span data-tip={Status} className="tooltip tooltip-bottom">
+          {truncate(Status)}
+        </span>
+      </td>
+      <td>
+        <span data-tip={Source} className="tooltip tooltip-bottom">
+          {truncate(Source)}
         </span>
       </td>
       <td>
