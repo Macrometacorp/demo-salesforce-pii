@@ -1,24 +1,52 @@
-import { useState } from "react";
-import { LoaderFunction, useCatch, useLoaderData } from "remix";
+import { useRef, useState } from "react";
+import { ActionFunction, LoaderFunction, useCatch, useFetcher, useLoaderData } from "remix";
 import Unauthorized from "./components/unauthorized";
 import ErrorComponent from "./components/error";
-import { UserData } from "~/interfaces";
+import { UserData, UserManagementActionResult } from "~/interfaces";
 import { getAuthTokens } from "~/sessions";
-import { ResourceEndpoints, Fabrics, Queries, Session } from "~/constants";
+import { ResourceEndpoints, Fabrics, Queries, Session, HttpMethods, AppPaths, FormButtonActions } from "~/constants";
 import { isLoggedIn, isMMToken } from "~/utilities/utils";
 import { c8ql } from "~/utilities/REST/mm";
 import ShareModal from "./components/modals/shareModal";
 import CommonShareableModal from "./components/modals/commonShareableModal";
 import { piiGetUserByToken } from "~/utilities/REST/pii";
+import * as queryString from "query-string";
+import handleUpdate from "../utilities/REST/handlers/update";
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const { [Session.PiiToken]: piiToken } = await getAuthTokens(request);
-  if (!(await isLoggedIn(request))) {
-    throw new Response("Unauthorized", { status: 401 });
+
+export const action: ActionFunction = async ({
+  request,
+}): Promise<UserManagementActionResult> => {
+  const form = await request.formData();
+  const actionType =
+    form.get(FormButtonActions.Name)?.toString() ?? "";
+    console.log(form)
+  let result;
+  switch (actionType) {
+    case FormButtonActions.Update:
+      result = await handleUpdate(request, form);
+      break;
+    default:
+      result = {
+        error: true,
+        name: "Form action",
+        errorMessage: "Unhandled form action",
+      };
   }
 
-  const isPrivateRecord = !isMMToken(piiToken);
+  return result;
+};
 
+export const loader: LoaderFunction = async ({ request }) => {
+  let { [Session.PiiToken]: piiToken } = await getAuthTokens(request);
+  const {
+    query: { token },
+  } = queryString.parseUrl(request.url);
+  piiToken = piiToken ?? token ?? "";
+  if (!token && !(await isLoggedIn(request))) {
+    throw new Response("Unauthorized", { status: 401 });
+  }
+  const isPrivateRecord = !isMMToken(piiToken);
   const piiPromise = isPrivateRecord
     ? piiGetUserByToken(piiToken)
         .then((response) => {
@@ -50,7 +78,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     piiPromise,
     locationPromise,
   ]);
-
   try {
     const parsedPiiResponse = isPrivateRecord
       ? JSON.parse(piiResponse)?.data
@@ -79,17 +106,19 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default () => {
   const loaderData = useLoaderData();
-
+  const fetcher = useFetcher();
+  const formEl = useRef(null);
   const [showCommonModal, setShowCommonModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [sharedEnpoint, setSharedEndpoint] = useState("");
-
+  const [isEdit, setIsEdit] = useState(false);
   const { name, email, phone, state, country, zipcode, job_title } =
     loaderData as UserData;
 
   return (
     <div className="card  shadow-lg max-w-lg mx-auto mt-10 hover:shadow-2xl">
       <div className="card-body">
+      <fetcher.Form action={AppPaths.UserDetails} method={HttpMethods.Post} ref={formEl}>
         <div className="form-control">
           <label className="label font-semibold">
             <span className="label-text">Name</span>
@@ -97,8 +126,9 @@ export default () => {
           <input
             type="text"
             name="name"
-            disabled
-            value={name}
+            disabled={!isEdit}
+            required
+            defaultValue={name}
             className="input input-primary input-bordered"
           />
         </div>
@@ -110,8 +140,9 @@ export default () => {
           <input
             type="email"
             name="email"
-            disabled
-            value={email}
+            disabled={!isEdit}
+            required
+            defaultValue={email}
             className="input input-primary input-bordered"
           />
         </div>
@@ -123,8 +154,9 @@ export default () => {
           <input
             type="tel"
             name="phone"
-            disabled
-            value={phone}
+            disabled={!isEdit}
+            required
+            defaultValue={phone}
             className="input input-primary input-bordered"
           />
         </div>
@@ -136,8 +168,9 @@ export default () => {
           <input
             type="text"
             name="state"
-            disabled
-            value={state}
+            disabled={!isEdit}
+            required
+            defaultValue={state}
             className="input input-primary input-bordered"
           />
         </div>
@@ -162,8 +195,9 @@ export default () => {
           <input
             type="text"
             name="zipcode"
-            disabled
-            value={zipcode}
+            disabled={!isEdit}
+            required
+            defaultValue={zipcode}
             className="input input-primary input-bordered"
           />
         </div>
@@ -175,40 +209,41 @@ export default () => {
           <input
             type="text"
             name="job_title"
-            disabled
-            value={job_title}
+            disabled={!isEdit}
+            required
+            defaultValue={job_title}
             className="input input-primary input-bordered"
           />
         </div>
         <div className="justify-center card-actions">
-          <button
-            className="btn btn-outline btn-primary"
-            disabled={!loaderData.isPrivateRecord}
-            onClick={() => setShowShareModal(true)}
+          {isEdit ? (<button
+            className="btn btn-outline btn-info"
+            name={FormButtonActions.Name}
+            value={FormButtonActions.Update}
+            type='submit'
           >
-            Share
-          </button>
-          <button
+            Update
+          </button>) :(<a
             className="btn btn-outline btn-neutral"
             onClick={() => {
-              setSharedEndpoint(ResourceEndpoints.Edit);
-              setShowCommonModal(true);
+              setIsEdit(true)
             }}
           >
             Edit
-          </button>
-          <button
+          </a>)}
+          <a
             className="btn btn-outline btn-error"
+            type='button'
             onClick={() => {
               setSharedEndpoint(ResourceEndpoints.Forget);
               setShowCommonModal(true);
             }}
           >
             Forget
-          </button>
+          </a>
         </div>
+      </fetcher.Form>
       </div>
-
       {showShareModal && (
         <ShareModal
           modalUserDetails={loaderData}
