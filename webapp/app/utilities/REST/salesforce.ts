@@ -9,16 +9,37 @@ import {
   optionsObj,
   Queries,
 } from "~/constants";
+import Client from "macrometa-realtime-cache/lib/cjs/client";
 
+// const cache = new (mmcache as any)({
+//   url: "https://gdn.paas.macrometa.io",
+//   apiKey: MM_API_KEY,
+//   name: Collections.UserLeadInfo,
+//   fabricName: Fabrics.Global,
+// });
 
-const cache = new (mmcache as any)({
-  url: "https://gdn.paas.macrometa.io",
-  apiKey: MM_API_KEY,
-  name: Collections.UserLeadInfo,
-  fabricName: Fabrics.Global,
-});
+class CacheSingleton {
+  private static instance: Client;
+  private constructor() {
+    CacheSingleton.instance = new (mmcache as any)({
+      url: "https://gdn.paas.macrometa.io",
+      apiKey: MM_API_KEY,
+      name: Collections.UserLeadInfo,
+      fabricName: Fabrics.Global,
+    });
+  }
 
-const CREATE_JOB_URL = `${SALESFORCE_INSTANCE_URL}${SALESFORCE_INSTANCE_SUB_URL}${SALESFORCE_JOB_INGEST}`;
+  static get Instance(): Client {
+    if (!CacheSingleton?.instance) new this();
+    return CacheSingleton.instance;
+  }
+
+  static get jobUrl(): string {
+    return `${SALESFORCE_INSTANCE_URL}${SALESFORCE_INSTANCE_SUB_URL}${SALESFORCE_JOB_INGEST}`;
+  }
+}
+
+// const CREATE_JOB_URL = `${SALESFORCE_INSTANCE_URL}${SALESFORCE_INSTANCE_SUB_URL}${SALESFORCE_JOB_INGEST}`;
 
 export const getAccessToken = async () => {
   const getUrl = buildURL(
@@ -38,61 +59,61 @@ export const getAccessToken = async () => {
   return token;
 };
 
-export const getCachedData = async() =>{
-  const keys = await cache.allKeys();
+export const getCachedData = async () => {
+  const keys = await CacheSingleton.Instance.allKeys();
   const cachedSavedData: any = [];
   const keysResult = keys.result;
   for (const key of keysResult) {
-    const contents = await cache.get(key);
+    const contents = await CacheSingleton.Instance.get(key);
     cachedSavedData.push(contents.value[0]);
-}
-return cachedSavedData
-}
+  }
+  return cachedSavedData;
+};
 export const bulkLeadRecordUpdate = async () => {
   try {
-    const keys = await cache.allKeys();
+    const keys = await CacheSingleton.Instance.allKeys();
     const cachedSavedData: any = [];
     const keysResult = keys.result;
     for (const key of keysResult) {
-      const contents = await cache.get(key);
+      const contents = await CacheSingleton.Instance.get(key);
       delete contents.value[0]["isEditable"];
-      if(!contents.value[0]['isUploaded']){
-      delete contents.value[0]["isUploaded"];
-      const result = await fetch(
-        `${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `apikey ${MM_API_KEY}`,
-          },
-          body: JSON.stringify({
-            query:
-              "For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname}",
-            bindVars: { token: contents.value[0]["token"] },
-          }),
+      if (!contents.value[0]["isUploaded"]) {
+        delete contents.value[0]["isUploaded"];
+        const result = await fetch(
+          `${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `apikey ${MM_API_KEY}`,
+            },
+            body: JSON.stringify({
+              query:
+                "For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname}",
+              bindVars: { token: contents.value[0]["token"] },
+            }),
+          }
+        );
+        const queryResult = await result.json();
+        if (queryResult.result.length > 0) {
+          delete queryResult.result[0]["name"];
+          const combinedLeadData = {
+            ...queryResult.result[0],
+            ...contents.value[0],
+          };
+          delete combinedLeadData["token"];
+          cachedSavedData.push(combinedLeadData);
         }
-      );
-      const queryResult = await result.json();
-    if(queryResult.result.length>0){
-      delete queryResult.result[0]["name"];
-      const combinedLeadData = {
-        ...queryResult.result[0],
-        ...contents.value[0],
-      };
-      delete combinedLeadData["token"];
-      cachedSavedData.push(combinedLeadData);
-    }
-  }
-    }//end of for
+      }
+    } //end of for
     const token = await getAccessToken();
     const csv = Papa.unparse(cachedSavedData);
     const methodOptions = getOptions(
       { method: "POST", body: createJobBody },
       token
     );
-    const createJobResult = await fetchWrapper(CREATE_JOB_URL, methodOptions);
+    const createJobResult = await fetchWrapper(CacheSingleton.jobUrl, methodOptions);
     const jobId = createJobResult.id;
-    console.log("jobID",jobId)
+    console.log("jobID", jobId);
     let uploadBulkApi;
     try {
       const methodOptions = getOptions(
@@ -100,7 +121,7 @@ export const bulkLeadRecordUpdate = async () => {
         token,
         "text/csv"
       );
-      const getUrl = buildURL(CREATE_JOB_URL, `${jobId}/batches`);
+      const getUrl = buildURL(CacheSingleton.jobUrl, `${jobId}/batches`);
       uploadBulkApi = await fetchWrapper(getUrl, methodOptions, true);
     } catch (error) {
       console.error("the errors", error);
@@ -110,10 +131,10 @@ export const bulkLeadRecordUpdate = async () => {
         { method: "PATCH", body: JSON.stringify({ state: "UploadComplete" }) },
         token
       );
-      const getUrl = buildURL(CREATE_JOB_URL, jobId);
+      const getUrl = buildURL(CacheSingleton.jobUrl, jobId);
       const closeJob = await fetchWrapper(getUrl, methodOptions);
-      console.log("closeJob",closeJob)
-     await refreshCache();
+      console.log("closeJob", closeJob);
+      await refreshCache();
       return new Response(
         JSON.stringify({ message: "Data Uploaded" }),
         optionsObj
@@ -127,10 +148,10 @@ export const bulkLeadRecordUpdate = async () => {
 };
 
 export const deleteStaleCacheHandler = async () => {
-  const allKeyResult = await cache.allKeys();
+  const allKeyResult = await CacheSingleton.Instance.allKeys();
   for (const keys of allKeyResult.result) {
     try {
-      await cache.delete(keys);
+      await CacheSingleton.Instance.delete(keys);
     } catch (error) {
       console.error("error", error);
       throw error;
@@ -142,7 +163,9 @@ export const deleteStaleCacheHandler = async () => {
 export const getresponse = async (token: string) => {
   let data;
   try {
-    const cacheResponse = await cache.getResponse({ url: token });
+    const cacheResponse = await CacheSingleton.Instance.getResponse({
+      url: token,
+    });
     data = cacheResponse.value;
   } catch (err: any) {
     if (err.error && err.code === 404) {
@@ -151,7 +174,7 @@ export const getresponse = async (token: string) => {
       data = await handlerResponse.json();
       if (data.statusCode !== 401) {
         try {
-          await cache.setResponse({
+          await CacheSingleton.Instance.setResponse({
             url: token,
             data,
             ttl: 10800,
@@ -162,7 +185,6 @@ export const getresponse = async (token: string) => {
       }
     }
   }
-
   return new Response(JSON.stringify(data), optionsObj);
 };
 
@@ -181,11 +203,11 @@ export const leadListHandler = async () => {
   return new Response(body, optionsObj);
 };
 
-export const deleteleadListHandler = async (id:string) => {
+export const deleteleadListHandler = async (id: string) => {
   const getUrl = buildURL(
     SALESFORCE_INSTANCE_URL,
     SALESFORCE_INSTANCE_SUB_URL,
-    '/sobjects/Lead/',
+    "/sobjects/Lead/",
     `${id}`
   );
   const token = await getAccessToken();
@@ -195,15 +217,15 @@ export const deleteleadListHandler = async (id:string) => {
   return new Response(body, optionsObj);
 };
 
-export const updateleadListHandler = async (id:string,data:any) => {
+export const updateleadListHandler = async (id: string, data: any) => {
   const getUrl = buildURL(
     SALESFORCE_INSTANCE_URL,
     SALESFORCE_INSTANCE_SUB_URL,
-    '/sobjects/Lead/',
+    "/sobjects/Lead/",
     `${id}`
   );
   const token = await getAccessToken();
-  const methodOptions = getOptions({ method: "POST"}, token);
+  const methodOptions = getOptions({ method: "POST" }, token);
   const response = await fetchWrapper(getUrl, methodOptions);
   const body = JSON.stringify(response);
   return new Response(body, optionsObj);
@@ -215,9 +237,8 @@ export const saveLeadDatahandler = async (
 ) => {
   const newLeadPayload = leadValues;
   let data;
-
   try {
-    let newLeadCachedResponse = await cache.getResponse({
+    let newLeadCachedResponse = await CacheSingleton.Instance.getResponse({
       url: token,
     });
     newLeadCachedResponse.value.push(newLeadPayload); //normal  json
@@ -225,7 +246,7 @@ export const saveLeadDatahandler = async (
   } catch (error) {
     data = [newLeadPayload];
   } finally {
-    await cache.setResponse({
+    await CacheSingleton.Instance.setResponse({
       url: token,
       data,
       ttl: -1,
@@ -236,7 +257,7 @@ export const saveLeadDatahandler = async (
 
 export const newLeadCachedResponseHandler = async (token: string) => {
   try {
-    const newLeadCachedResponse = await cache.getResponse({
+    const newLeadCachedResponse = await CacheSingleton.Instance.getResponse({
       url: token,
     });
     return new Response(
@@ -250,27 +271,26 @@ export const newLeadCachedResponseHandler = async (token: string) => {
 
 export const refreshCache = async () => {
   try {
-    const keys = await cache.allKeys();
+    const keys = await CacheSingleton.Instance.allKeys();
     const cachedSavedData: any = [];
     const keysResult = keys.result;
     for (const key of keysResult) {
-      const contents = await cache.get(key);
+      const contents = await CacheSingleton.Instance.get(key);
       cachedSavedData.push(contents.value[0]);
     }
-
     await deleteStaleCacheHandler();
     const result = await leadListHandler();
-
     const res = await result.json();
-    
     const s: any = [];
-    const notUploadedCachedData= cachedSavedData.filter((elem:any)=> !elem.isUploaded)
-    for (const cac of notUploadedCachedData){
-      const res=  await cache.setResponse({
+    const notUploadedCachedData = cachedSavedData.filter(
+      (elem: any) => !elem.isUploaded
+    );
+    for (const cac of notUploadedCachedData) {
+      const res = await CacheSingleton.Instance.setResponse({
         url: cac.token,
-        data:[cac],
+        data: [cac],
         ttl: -1,
-      })
+      });
     }
     for (const ks of res.records) {
       delete ks.attributes;
@@ -291,18 +311,14 @@ export const refreshCache = async () => {
       );
       const queryResult = await result.json();
       const token = queryResult.result[0] ?? { token: `sf_${uuidv4()}` };
-
-
       s.push({ ...ks, ...token, isUploaded: true });
-let data =[{ ...ks, ...token, isUploaded: true }]
-     const res=  await cache.setResponse({
+      let data = [{ ...ks, ...token, isUploaded: true }];
+      const res = await CacheSingleton.Instance.setResponse({
         url: token.token,
         data,
         ttl: -1,
-      })
+      });
     }
-   
-
     return { isRefresh: true };
   } catch (error: any) {
     return {
