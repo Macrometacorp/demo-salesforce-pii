@@ -62,7 +62,27 @@ export interface UserConsent {
 }
 
 export interface UserData extends PiiData, LocationData, LeadInfo, UserConsent  {}
-
+export interface CsvUserData {
+  company: string;
+  status: string;
+  title: string;
+  numberOfEmployees: string;
+  website:string;
+  leadSource: string;
+  industry: string;
+  rating: string;
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  email: string;
+  name: string;
+  phone: string;
+  token: string;
+  firstname: string;
+  lastname: string;
+}
 export interface RowProps {
   activeRow: string;
   data: PiiData & LocationData & LeadInfo & UserConsent;
