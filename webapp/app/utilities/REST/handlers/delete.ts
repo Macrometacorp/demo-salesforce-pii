@@ -10,6 +10,7 @@ export default async (
   isApiKey: boolean = false
 ) => {
   const token = form.get("token")?.toString() ?? "";
+  const _key = form.get("_key")?.toString() ?? "";
 
   const isPrivate = !isMMToken(token);
   try {
@@ -33,16 +34,15 @@ export default async (
         throw new Error(JSON.stringify(userRes));
       }
     }
-
     const leadInfoData = await getCachedData();
     const id =leadInfoData.filter((element:any)=>element.token==token)
-    const res=  await   deleteleadListHandler(id[0].Id);
+    const res = await deleteleadListHandler(id[0].Id);
     const locationRes = await c8ql(
       request,
       Fabrics.Global,
       Queries.DeleteUserLeadInfo(),
       {
-        token,
+        token: _key,
       },
       isApiKey
     ).then((request) => request.json());

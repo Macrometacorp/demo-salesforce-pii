@@ -15,6 +15,8 @@ export default ({
   const formEl = useRef(null);
 
   const [decryptData, setDecryptData] = useState({} as UserData);
+  const [editMessage, setEditMessage] = useState("Update");
+  const [editClass , setEditClass] = useState("btn-info");
 
   const handleInput = (inputType: string) => {
     return (event: any) => {
@@ -34,6 +36,19 @@ export default ({
   useEffect(() => {
     if (fetcher.state === "loading") {
       onModalClose();
+    }
+    switch (fetcher.state) {
+      case "submitting":
+        setEditClass("btn-warning");
+        setEditMessage("Updating Data ...");
+        break;
+      case "loading":
+        setEditClass("btn-success");
+        setEditMessage("Data Updated");
+        break;
+      default:
+        setEditClass("btn-info");
+        setEditMessage("Update");
     }
   }, [fetcher.state]);
 
@@ -114,7 +129,7 @@ export default ({
             type="text"
             name="company"
             defaultValue={decryptData?.Company}
-            onChange={handleInput("company")}
+            onChange={handleInput("Company")}
             required
             className="input input-primary input-bordered"
           />
@@ -153,7 +168,7 @@ export default ({
             name="title"
             required
             defaultValue={decryptData?.Title}
-            onChange={handleInput("title")}
+            onChange={handleInput("Title")}
             className="input input-primary input-bordered"
           />
         </div>
@@ -181,7 +196,7 @@ export default ({
             name="website"
             required
             defaultValue={decryptData?.Website}
-            onChange={handleInput("website")}
+            onChange={handleInput("Website")}
             className="input input-primary input-bordered"
           />
         </div>
@@ -208,7 +223,7 @@ export default ({
             className="select select-bordered"
             name="leadSource"
             value={decryptData?.LeadSource}
-            onChange={handleInput("leadSource")}
+            onChange={handleInput("LeadSource")}
             required
           >
             <option disabled aria-label="None" value="" selected>
@@ -230,7 +245,7 @@ export default ({
             className="select select-bordered"
             name="industry"
             value={decryptData?.Industry}
-            onChange={handleInput("industry")}
+            onChange={handleInput("Industry")}
             required
           >
             <option disabled selected aria-label="None" value="">
@@ -291,7 +306,7 @@ export default ({
             className="select select-bordered"
             name="rating"
             value={decryptData?.Rating}
-            onChange={handleInput("rating")}
+            onChange={handleInput("Rating")}
             required
           >
             <option disabled selected aria-label="None" value="">
@@ -312,7 +327,7 @@ export default ({
             name="street"
             required
             defaultValue={decryptData?.Street}
-            onChange={handleInput("street")}
+            onChange={handleInput("Street")}
             className="input input-primary input-bordered"
           />
         </div>
@@ -326,7 +341,7 @@ export default ({
             name="city"
             required
             defaultValue={decryptData?.City}
-            onChange={handleInput("city")}
+            onChange={handleInput("City")}
             className="input input-primary input-bordered"
           />
         </div>
@@ -340,7 +355,7 @@ export default ({
             name="state"
             required
             defaultValue={decryptData?.State}
-            onChange={handleInput("state")}
+            onChange={handleInput("State")}
             className="input input-primary input-bordered"
           />
         </div>
@@ -365,7 +380,7 @@ export default ({
             type="text"
             name="zipcode"
             defaultValue={decryptData?.PostalCode}
-            onChange={handleInput("postalCode")}
+            onChange={handleInput("PostalCode")}
             required
             className="input input-primary input-bordered"
           />
@@ -415,12 +430,12 @@ export default ({
 
         <div className="modal-action">
           <button
-            className="btn btn-primary"
+            className={`btn btn-primary ${editClass}`}
             type="submit"
             name={FormButtonActions.Name}
             value={FormButtonActions.Update}
           >
-            Update
+            {editMessage}
           </button>
           <a onClick={onModalClose} className="btn">
             Close

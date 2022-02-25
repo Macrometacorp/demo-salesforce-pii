@@ -26,6 +26,8 @@ import CommonShareableModal from "./components/modals/commonShareableModal";
 import { piiGetUserByToken } from "~/utilities/REST/pii";
 import * as queryString from "query-string";
  import handleUpdate from "../utilities/REST/handlers/update";
+import UserConsentModal from './components/modals/userConsentModal';
+import { updateConsentDetails } from '../utilities/REST/handlers/consent';
 
 export const action: ActionFunction = async ({
   request,
@@ -36,6 +38,10 @@ export const action: ActionFunction = async ({
   switch (actionType) {
     case FormButtonActions.Update:
       result = await handleUpdate(request, form);
+      break;
+    case FormButtonActions.AllowConsent:
+    case FormButtonActions.RejectConsent:
+      result = await updateConsentDetails(request, form) as any;
       break;
     default:
       result = {
@@ -124,6 +130,7 @@ export default () => {
   const formEl = useRef(null);
   const [showCommonModal, setShowCommonModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showConsentModal, setShowConsentModal] = useState(true);
   const [sharedEnpoint, setSharedEndpoint] = useState("");
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState("Edit");
@@ -145,7 +152,6 @@ export default () => {
   }, [loaderData]);
 
   useEffect(() => {
-    console.log("data")
     switch (fetcher.state) {
       case "submitting":
         setEditClass("btn-warning");
@@ -165,7 +171,7 @@ export default () => {
 
   return (
     <div className="card  shadow-lg max-w-lg mx-auto mt-10 hover:shadow-2xl">
-      <div className="card-body">
+      {!showConsentModal && <div className="card-body">
         <fetcher.Form
           action={AppPaths.UserDetails}
           method={HttpMethods.Post}
@@ -210,7 +216,7 @@ export default () => {
               name="company"
               disabled={!isEdit}
               defaultValue={decryptData?.Company}
-              onChange={handleInput("company")}
+              onChange={handleInput("Company")}
               required
               className="input input-primary input-bordered"
             />
@@ -253,7 +259,7 @@ export default () => {
               required
               disabled={!isEdit}
               defaultValue={decryptData?.Title}
-              onChange={handleInput("title")}
+              onChange={handleInput("Title")}
               className="input input-primary input-bordered"
             />
           </div>
@@ -283,7 +289,7 @@ export default () => {
               required
               disabled={!isEdit}
               defaultValue={decryptData?.Website}
-              onChange={handleInput("website")}
+              onChange={handleInput("Website")}
               className="input input-primary input-bordered"
             />
           </div>
@@ -310,8 +316,8 @@ export default () => {
             <select
               className="select select-bordered"
               name="leadSource"
-              value={(decryptData as any)?.Status}
-              onChange={handleInput("Status")}
+              value={(decryptData as any)?.LeadSource}
+              onChange={handleInput("LeadSource")}
               required
               disabled={!isEdit}
             >
@@ -334,7 +340,7 @@ export default () => {
               className="select select-bordered"
               name="industry"
               value={decryptData?.Industry}
-              onChange={handleInput("industry")}
+              onChange={handleInput("Industry")}
               required
               disabled={!isEdit}
             >
@@ -397,7 +403,7 @@ export default () => {
               className="select select-bordered"
               name="rating"
               value={decryptData?.Rating}
-              onChange={handleInput("rating")}
+              onChange={handleInput("Rating")}
               required
               disabled={!isEdit}
             >
@@ -420,7 +426,7 @@ export default () => {
               required
               disabled={!isEdit}
               defaultValue={decryptData?.Street}
-              onChange={handleInput("street")}
+              onChange={handleInput("Street")}
               className="input input-primary input-bordered"
             />
           </div>
@@ -435,7 +441,7 @@ export default () => {
               required
               disabled={!isEdit}
               defaultValue={decryptData?.City}
-              onChange={handleInput("city")}
+              onChange={handleInput("City")}
               className="input input-primary input-bordered"
             />
           </div>
@@ -450,7 +456,7 @@ export default () => {
               required
               disabled={!isEdit}
               defaultValue={decryptData?.State}
-              onChange={handleInput("state")}
+              onChange={handleInput("State")}
               className="input input-primary input-bordered"
             />
           </div>
@@ -476,7 +482,7 @@ export default () => {
               name="zipcode"
               disabled={!isEdit}
               defaultValue={decryptData?.PostalCode}
-              onChange={handleInput("postalCode")}
+              onChange={handleInput("PostalCode")}
               required
               className="input input-primary input-bordered"
             />
@@ -556,7 +562,7 @@ export default () => {
             </a> */}
           </div>
         </fetcher.Form>
-      </div>
+      </div>}
       {showShareModal && (
         <ShareModal
           modalUserDetails={loaderData}
@@ -574,6 +580,13 @@ export default () => {
           piiToken={loaderData.token}
         />
       )}
+      <UserConsentModal
+        showModal={showConsentModal}
+        token={decryptData.token}
+        onModalClose={() => {
+          setShowConsentModal(false);
+        }}
+      />
     </div>
   );
 };

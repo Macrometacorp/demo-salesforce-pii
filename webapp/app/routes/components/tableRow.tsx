@@ -23,7 +23,8 @@ export default ({
     isUploaded,
     Company,
     Status,
-    LeadSource: Source
+    LeadSource: Source,
+    ConsentApproved
   } = data;
   const isPrivate = isPrivateRegion === "true";
   const isPrivateRecord = !isMMToken(token);
@@ -88,13 +89,8 @@ export default ({
         </span>
       </td>
       <td>
-        <span data-tip={PostalCode} className="tooltip tooltip-bottom">
-          {truncate(PostalCode)}
-        </span>
-      </td>
-      <td>
-        <span data-tip={Title} className="tooltip tooltip-bottom">
-          {truncate(Title, 12)}
+        <span data-tip={ConsentApproved ? 'Approved' : 'Rejected'} className="tooltip tooltip-bottom m-auto" >
+          <input type="checkbox" checked={ConsentApproved || false} className="form-control accent-green-600 ml-4 mt-1 h-5 w-5" onChange={() => {}}/>
         </span>
       </td>
       <td className="flex">

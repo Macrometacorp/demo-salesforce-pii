@@ -79,12 +79,11 @@ export const action: ActionFunction = async ({
       result = await bulkLeadRecordUpdate() as any;
       break;
     default:
-      result = await bulkLeadRecordUpdate() as any;
-      // result = {
-      //   error: true,
-      //   name: "Form action",
-      //   errorMessage: "Unhandled form action",
-      // };
+      result = {
+        error: true,
+        name: "Form action",
+        errorMessage: "Unhandled form action",
+      };
   }
   return result;
 };
@@ -128,7 +127,7 @@ export default () => {
   const [activeRow, setActiveRow] = useState("");
   const [isPrivateRegion, setIsPrivateRegion] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
+ 
   const indexOfLastContact = currentPage * CONTACTS_PER_PAGE;
   const indexOfFirstContact = indexOfLastContact - CONTACTS_PER_PAGE;
   const currentContacts = userData.slice(
@@ -193,7 +192,7 @@ export default () => {
         } else if (isRefresh) {
           toastMessage = "Cache updated successfully";
         } else if (isBulkUpload) {
-          toastMessage = "Bulk uploaded successfully";
+          toastMessage = "Bulk data uploaded successfully";
         }
       }
       

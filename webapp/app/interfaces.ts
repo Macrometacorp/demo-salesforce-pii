@@ -56,11 +56,16 @@ export interface LeadInfo {
   isUploaded: string;
 }
 
-export interface UserData extends PiiData, LocationData,LeadInfo  {}
+export interface UserConsent {
+  _key : string;
+  ConsentApproved ?: boolean;
+}
+
+export interface UserData extends PiiData, LocationData, LeadInfo, UserConsent  {}
 
 export interface RowProps {
   activeRow: string;
-  data: PiiData & LocationData & LeadInfo;
+  data: PiiData & LocationData & LeadInfo & UserConsent;
   isPrivateRegion: string;
   setActiveRow: (arg: string) => void;
   onActionButtonClicked: (action: ActionButtons, details: UserData) => void;
@@ -124,3 +129,10 @@ export interface LatencyInfo {
   Method: string;
   Size: string;
 }
+
+export type ConsentModalProps = {
+  showModal: boolean;
+  token : string;
+  formAction?: string;
+  onModalClose: () => void;
+};

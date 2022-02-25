@@ -28,6 +28,7 @@ export enum ModalPaths {
   ShowDecryptedModal = "#decrypted-modal",
   ShowEditForgetModal = "#edit-forget-modal",
   ShowLatencyModal = "#latency-model",
+  UserConsentModal = "#consent-model",
 }
 
 export enum ToastTypes {
@@ -45,8 +46,7 @@ export const HEADINGS = [
   "status",
   "source",
   "country",
-  "postal code",
-  "title",
+  "consent",
   "actions",
 ];
 
@@ -63,11 +63,12 @@ export enum Fabrics {
 export enum Collections {
   Users = "users",
   UserLeadInfo = "user_lead_info",
+  UserConsentData = "user_consent_data"
 }
 
 export const MM_TOKEN_PREFIX = "mm_";
 
-export const TRUNCATE_LENGTH = 30;
+export const TRUNCATE_LENGTH = 20;
 
 export const CONTACTS_PER_PAGE = 10;
 
@@ -79,6 +80,8 @@ export const Queries = {
 
   GetLocations: () => `FOR doc in ${Collections.UserLeadInfo} RETURN doc`,
 
+  GetUserConsents: () => `FOR doc in ${Collections.UserConsentData} RETURN doc`,
+
   InsertUser: () =>
     `INSERT { _key: @token, token: @token, name: @name, email: @email, phone: @phone,firstName:@firstName, lastname:@lastname } INTO ${Collections.Users}`,
 
@@ -89,13 +92,16 @@ export const Queries = {
     `INSERT { _key: @token, token: @token, state: @state, country: @country, zipcode: @zipcode, job_title: @job_title } INTO ${Collections.UserLeadInfo}`,
 
   UpdateLocation: () =>
-  `UPDATE @_key with {"value": @value } IN ${Collections.UserLeadInfo}`,
+    `UPDATE @_key with {"value": @value } IN ${Collections.UserLeadInfo}`,
 
   SearchUserByEmail: () =>
     `FOR user IN ${Collections.Users} FILTER user.email == @email RETURN user`,
 
   SearchUserByToken: () =>
     `FOR user IN ${Collections.Users} FILTER user._key == @token RETURN user`,
+  
+  SearchConsentByToken: () =>
+  `FOR user IN ${Collections.UserConsentData} FILTER user._key == @token RETURN user`,
 
   SearchLocationByToken: () =>
     `FOR doc in ${Collections.UserLeadInfo} 
@@ -130,9 +136,14 @@ export const Queries = {
 
   DeleteUserLeadInfo: () =>
     `REMOVE { _key: @token } IN ${Collections.UserLeadInfo}`,
-  
-  SalesforceLeadQuery:()=>"Select id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees from lead"  
-  
+
+  SalesforceLeadQuery: () =>
+    "Select id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees from lead",
+
+  InsertUserConsent: () =>
+    `UPSERT {_key:@token}
+    INSERT { _key: @token, ConsentApproved: @ConsentApproved }
+    UPDATE {ConsentApproved:@ConsentApproved} IN ${Collections.UserConsentData}`,
 };
 
 
@@ -171,7 +182,9 @@ export enum FormButtonActions {
   Delete = "delete",
   Upload = "upload",
   RefreshCache = "refreshCache",
-  BulkUpload = "bulkUpload"
+  BulkUpload = "bulkUpload",
+  AllowConsent = "allowConsent",
+  RejectConsent = "rejectConsent"
 }
 
 export const LATENCY_HEADINGS = ["path", "status", "method", "size", "time"];

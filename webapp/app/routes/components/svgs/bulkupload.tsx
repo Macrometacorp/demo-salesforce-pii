@@ -7,7 +7,7 @@ export default () => (
     height="512"
     x="0"
     y="0"
-    className="inline-block w-8 h-8 stroke-current"
+    className="inline-block w-8 h-8 stroke-current pointer-events-none"
   >
     <g id="surface68945471">
     <path style={{

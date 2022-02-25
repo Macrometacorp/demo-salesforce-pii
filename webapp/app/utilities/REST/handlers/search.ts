@@ -1,3 +1,4 @@
+import { UserConsent } from './../../../interfaces';
 import { Fabrics, Queries } from "~/constants";
 import { LocationData, PiiData, UserData } from "~/interfaces";
 import { isMMToken } from "~/utilities/utils";
@@ -67,18 +68,29 @@ export default async (request: Request, email: string) => {
       Queries.SearchLocationByToken(),
       { token }
     ).then((response) => response.json());
+    
     const locationDetails = locationRes?.result?.[0] as LocationData;
+
+    // find location details for this token
+    const consentRes = await c8ql(
+      request,
+      Fabrics.Global,
+      Queries.SearchConsentByToken(),
+      { token }
+    ).then((response) => response.json());
+    const consentDetails = consentRes?.result?.[0] as UserConsent;
     result = [
       {
         ...user,
         ...locationDetails,
+        _key: locationDetails?._key,
+        ConsentApproved: consentDetails?.ConsentApproved
       },
     ];
   } else {
     // did not find anything for this email
     console.log("--------NOT FOUND ANYWHERE----------");
   }
-  console.log("--------FINAL----------");
   console.log(JSON.stringify(result));
   return result;
 };

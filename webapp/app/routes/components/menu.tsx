@@ -1,5 +1,5 @@
 import { parse as parseCSV } from "papaparse";
-import { Form, Link, useFetcher, useSubmit } from "remix";
+import { Form, Link, useFetcher, useSubmit, useTransition } from "remix";
 import BulkUploadSVG from "~/routes/components/svgs/bulkupload";
 import {
   AppPaths,
@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import ContactSVG from "../components/svgs/contact";
 import UploadSVG from "../components/svgs/upload";
 import { HeaderProps } from "~/interfaces";
+import ProgressModal from './modals/progressModal';
 
 const FILE_SELECTOR_ID = "file-selector";
 
@@ -173,6 +174,7 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
               </ul>
             </div>
           </div>
+          {fetcher.state === "submitting" && <ProgressModal />}
         </>
       )}
     </div>

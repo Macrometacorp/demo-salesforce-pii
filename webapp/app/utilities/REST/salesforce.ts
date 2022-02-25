@@ -114,15 +114,10 @@ export const bulkLeadRecordUpdate = async () => {
       const closeJob = await fetchWrapper(getUrl, methodOptions);
       console.log("closeJob",closeJob)
      await refreshCache();
-      return new Response(
-        JSON.stringify({ message: "Data Uploaded" }),
-        optionsObj
-      );
     }
     return { isBulkUpload: true };
-  } catch (err) {
-    throw err;
-    // return new Response("No data to upload");
+  } catch (error: any) {
+    return { error: true, errorMessage: error?.message || "Something went wrong while bulk upload.", name: error?.name || "Error" };
   }
 };
 
@@ -190,8 +185,8 @@ export const deleteleadListHandler = async (id:string) => {
   );
   const token = await getAccessToken();
   const methodOptions = getOptions({ method: "DELETE" }, token);
-  const response = await fetchWrapper(getUrl, methodOptions);
-  const body = JSON.stringify(response);
+  const response = await fetch(getUrl, methodOptions);
+  const body = JSON.stringify(response || {});
   return new Response(body, optionsObj);
 };
 

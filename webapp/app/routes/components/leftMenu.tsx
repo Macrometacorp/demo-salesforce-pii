@@ -60,7 +60,7 @@ export default ({ setShowLatencyModal }: HeaderProps) => {
             <button
               className={`btn text-center ml-2 btn-sm mt-[9px] ${refreshButtonClass}`}
               data-tip="View Latency"
-              name={FormButtonActions.RefreshCache}
+              name={FormButtonActions.Name}
               value={FormButtonActions.RefreshCache}
               type="submit"
             >
