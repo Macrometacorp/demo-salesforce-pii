@@ -10,7 +10,6 @@ import {
   Queries,
 } from "~/constants";
 
-
 const cache = new (mmcache as any)({
   url: "https://gdn.paas.macrometa.io",
   apiKey: MM_API_KEY,
@@ -38,16 +37,16 @@ export const getAccessToken = async () => {
   return token;
 };
 
-export const getCachedData = async() =>{
+export const getCachedData = async () => {
   const keys = await cache.allKeys();
   const cachedSavedData: any = [];
   const keysResult = keys.result;
   for (const key of keysResult) {
     const contents = await cache.get(key);
     cachedSavedData.push(contents.value[0]);
-}
-return cachedSavedData
-}
+  }
+  return cachedSavedData;
+};
 export const bulkLeadRecordUpdate = async () => {
   try {
     const keys = await cache.allKeys();
@@ -56,34 +55,34 @@ export const bulkLeadRecordUpdate = async () => {
     for (const key of keysResult) {
       const contents = await cache.get(key);
       delete contents.value[0]["isEditable"];
-      if(!contents.value[0]['isUploaded']){
-      delete contents.value[0]["isUploaded"];
-      const result = await fetch(
-        `${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `apikey ${MM_API_KEY}`,
-          },
-          body: JSON.stringify({
-            query:
-              "For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname}",
-            bindVars: { token: contents.value[0]["token"] },
-          }),
+      if (!contents.value[0]["isUploaded"]) {
+        delete contents.value[0]["isUploaded"];
+        const result = await fetch(
+          `${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `apikey ${MM_API_KEY}`,
+            },
+            body: JSON.stringify({
+              query:
+                "For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname}",
+              bindVars: { token: contents.value[0]["token"] },
+            }),
+          }
+        );
+        const queryResult = await result.json();
+        if (queryResult.result.length > 0) {
+          delete queryResult.result[0]["name"];
+          const combinedLeadData = {
+            ...queryResult.result[0],
+            ...contents.value[0],
+          };
+          delete combinedLeadData["token"];
+          cachedSavedData.push(combinedLeadData);
         }
-      );
-      const queryResult = await result.json();
-    if(queryResult.result.length>0){
-      delete queryResult.result[0]["name"];
-      const combinedLeadData = {
-        ...queryResult.result[0],
-        ...contents.value[0],
-      };
-      delete combinedLeadData["token"];
-      cachedSavedData.push(combinedLeadData);
-    }
-  }
-    }//end of for
+      }
+    } //end of for
     const token = await getAccessToken();
     const csv = Papa.unparse(cachedSavedData);
     const methodOptions = getOptions(
@@ -92,7 +91,7 @@ export const bulkLeadRecordUpdate = async () => {
     );
     const createJobResult = await fetchWrapper(CREATE_JOB_URL, methodOptions);
     const jobId = createJobResult.id;
-    console.log("jobID",jobId)
+    console.log("jobID", jobId);
     let uploadBulkApi;
     try {
       const methodOptions = getOptions(
@@ -112,12 +111,16 @@ export const bulkLeadRecordUpdate = async () => {
       );
       const getUrl = buildURL(CREATE_JOB_URL, jobId);
       const closeJob = await fetchWrapper(getUrl, methodOptions);
-      console.log("closeJob",closeJob)
-     await refreshCache();
+      console.log("closeJob", closeJob);
+    const refreshCacheResult =  await refreshCache();
     }
     return { isBulkUpload: true };
   } catch (error: any) {
-    return { error: true, errorMessage: error?.message || "Something went wrong while bulk upload.", name: error?.name || "Error" };
+    return {
+      error: true,
+      errorMessage: error?.message || "Something went wrong while bulk upload.",
+      name: error?.name || "Error",
+    };
   }
 };
 
@@ -126,12 +129,15 @@ export const deleteStaleCacheHandler = async () => {
   for (const keys of allKeyResult.result) {
     try {
       await cache.delete(keys);
+      return new Response(
+        JSON.stringify({ message: "Cache Cleared" }),
+        optionsObj
+      );
     } catch (error) {
       console.error("error", error);
       throw error;
     }
   }
-  return new Response(JSON.stringify({ message: "Cache Cleared" }), optionsObj);
 };
 
 export const getresponse = async (token: string) => {
@@ -176,29 +182,33 @@ export const leadListHandler = async () => {
   return new Response(body, optionsObj);
 };
 
-export const deleteleadListHandler = async (id:string) => {
+export const deleteleadListHandler = async (id: string) => {
   const getUrl = buildURL(
     SALESFORCE_INSTANCE_URL,
     SALESFORCE_INSTANCE_SUB_URL,
-    '/sobjects/Lead/',
+    "/sobjects/Lead/",
     `${id}`
   );
-  const token = await getAccessToken();
-  const methodOptions = getOptions({ method: "DELETE" }, token);
-  const response = await fetch(getUrl, methodOptions);
-  const body = JSON.stringify(response || {});
-  return new Response(body, optionsObj);
+  try {
+    const token = await getAccessToken();
+    const methodOptions = getOptions({ method: "DELETE" }, token);
+    const response = await fetch(getUrl, methodOptions);
+    const body = JSON.stringify(response || {});
+    return new Response(body, optionsObj);
+  } catch (err) {
+    console.log("Err", err);
+  }
 };
 
-export const updateleadListHandler = async (id:string,data:any) => {
+export const updateleadListHandler = async (id: string, data: any) => {
   const getUrl = buildURL(
     SALESFORCE_INSTANCE_URL,
     SALESFORCE_INSTANCE_SUB_URL,
-    '/sobjects/Lead/',
+    "/sobjects/Lead/",
     `${id}`
   );
   const token = await getAccessToken();
-  const methodOptions = getOptions({ method: "POST"}, token);
+  const methodOptions = getOptions({ method: "POST" }, token);
   const response = await fetchWrapper(getUrl, methodOptions);
   const body = JSON.stringify(response);
   return new Response(body, optionsObj);
@@ -252,20 +262,22 @@ export const refreshCache = async () => {
       const contents = await cache.get(key);
       cachedSavedData.push(contents.value[0]);
     }
-
+    
     await deleteStaleCacheHandler();
     const result = await leadListHandler();
 
     const res = await result.json();
-    
-    const s: any = [];
-    const notUploadedCachedData= cachedSavedData.filter((elem:any)=> !elem.isUploaded)
-    for (const cac of notUploadedCachedData){
-      const res=  await cache.setResponse({
-        url: cac.token,
-        data:[cac],
-        ttl: -1,
-      })
+    const notUploadedCachedData = cachedSavedData.filter(
+      (elem: any) => !elem.isUploaded
+    );
+    if (notUploadedCachedData.length > 0) {
+      for (const cac of notUploadedCachedData) {
+        const res = await cache.setResponse({
+          url: cac.token,
+          data: [cac],
+          ttl: -1,
+        });
+      }
     }
     for (const ks of res.records) {
       delete ks.attributes;
@@ -287,16 +299,13 @@ export const refreshCache = async () => {
       const queryResult = await result.json();
       const token = queryResult.result[0] ?? { token: `sf_${uuidv4()}` };
 
-
-      s.push({ ...ks, ...token, isUploaded: true });
-let data =[{ ...ks, ...token, isUploaded: true }]
-     const res=  await cache.setResponse({
+      let data = [{ ...ks, ...token, isUploaded: true }];
+      const res = await cache.setResponse({
         url: token.token,
         data,
         ttl: -1,
-      })
+      });
     }
-   
 
     return { isRefresh: true };
   } catch (error: any) {

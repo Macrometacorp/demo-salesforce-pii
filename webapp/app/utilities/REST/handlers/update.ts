@@ -183,7 +183,7 @@ export default async (
     });
     return { isPrivate, isUpdated: true };
   } catch (error: any) {
-    console.log(error);
+    console.error(error);
     return {
       error: true,
       errorMessage: error?.message || error?.errorMessage,

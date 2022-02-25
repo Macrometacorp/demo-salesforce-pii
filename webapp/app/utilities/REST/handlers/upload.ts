@@ -60,7 +60,7 @@ export default async (request: Request, form: FormData) => {
       for (let i = 0; i < allFormData.length; ++i) {
         const createRes = await handleCreate(request, allFormData[i]);
         console.log(createRes);
-        console.log(`Uploaded for ${allFormData[i].get("leadStatus")}`);
+        console.log(`Uploaded for ${allFormData[i].get("name")}`);
       }
       // some of the records maybe private
       return { isPrivate: true, isAdded: true };
