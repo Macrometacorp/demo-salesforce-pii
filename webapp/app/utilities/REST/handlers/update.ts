@@ -111,6 +111,10 @@ export default async (
       true
     );
 
+    await new Promise((resolve, reject) => { 
+        setTimeout(() => {resolve(null)}, 300);
+    });
+
     const userData = await c8ql(
       request,
       Fabrics.Global,
