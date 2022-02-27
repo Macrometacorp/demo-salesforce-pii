@@ -44,7 +44,7 @@ export default ({
                         data-tip={data.Path}
                         className="tooltip tooltip-bottom"
                       >
-                        {truncate(data.Path)}
+                        {truncate(data.Path, 40)}
                       </span>
                     </td>
                     <td className="w-44">
