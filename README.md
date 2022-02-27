@@ -1,8 +1,8 @@
 # Demo PII
 
-### Live Demo: https://pii.macrometa.io/
+### Live Demo: https://sf-pii.macrometa.io/
 
-Macrometa PII Demo app is a fullstack admin/user portal that showcases the data privacy capability of GDN. Two fabrics are created on the GDN platform. The first fabric is deployed in the European region (datacenters are located in Europe) and the second fabric is deployed globally (all datacenters including European region). When a user is added via the UI and the user is from a European country, his contact information is encrypted by the privacy service and stored in the European fabric. Then, with the help of a stream worker, these encrypted fields are pseudo-anonymized and added to a collection in the global fabric. The admin can perform CRUD operations on this record. The admin can use the "shared" command to send a curl command to the user which allows him to see the the details of his records (unencrypted).
+Macrometa Salesforce PII Demo app is a fullstack admin/user portal that showcases the edge caching and data privacy capabilities of GDN for Salesforce. Two fabrics are created on the GDN platform. The first fabric is deployed in the European region (datacenters are located in Europe) and the second fabric is deployed globally (all datacenters including European region). When a user is added via the UI and the user is from a European country, his contact information is encrypted by the privacy service and stored in the European fabric. Then, with the help of a stream worker, these encrypted fields are pseudo-anonymized and added to a collection in the global fabric. The admin can perform CRUD operations on this record. The admin can use the "shared" command to send a curl command to the user which allows him to see the the details of his records (unencrypted).
 
 ![alt text](./screenshot.png)
 ## Setup
