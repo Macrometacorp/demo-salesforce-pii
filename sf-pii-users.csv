@@ -1,0 +1,11 @@
+name,firstname,lastname,email,phone,company,numberOfEmployees,city,street,industry,website,state,country,postalCode,title,leadSource,status,rating
+Idette Yandell,Idette,Yandell,iyandell0@census.gov,847-895-0670,Macrometa,100,Tokyo,TokyoStreet,Agriculture,www.macrometa.com,Tohoku,Japan,863-2503,Developer III,Web,Open - Not Contacted,Hot
+Sigvard Mellings,Sigvard,Mellings,smellings1@devhub.com,713-604-2483,HP,200,Houston,DallasStreet,Apparel,www.hp.com,Texas,United States,77228,Computer Systems Analyst III,Web,Closed - Not Converted,Cold
+Davita Sonschein,Davita,Sonschein,dsonschein2@dropbox.com,941-451-5432,Intel,300,Ontario,WS,Banking,www.intel.com,British Columbia,Canada,N5L,Sales Associate,Phone Inquiry,Closed - Converted,Hot
+Freddy Kettlestring,Freddy,Kettlestring,fkettlestring3@boston.com,770-583-1839,AWS,400,Tbilisi,Causcaus,Biotechnology,www.aws.com,Georgia,United States,31119,Computer Systems Analyst I,Phone Inquiry,Closed - Converted,Warm
+Danella MacNeice,Danella,MacNeice,dmacneice4@skyrock.com,610-523-5679,Oracle,500,Harisburg,Harisburg street,Technology,www.oracle.com,Pennsylvania,United States,19610,Analyst Programmer,Web,Working - Contacted,Cold
+Huntington Brisson,Huntington,Brisson,hbrisson5@rediff.com,281-154-5566,Google,600,Austin,North Texas,Education,www.google.com,Texas,United States,77045,Help Desk Technician,Other,Working - Contacted,Hot
+Phyllida Bruhke,Phyllida,Bruhke,pbruhke6@wordpress.org,312-884-9608,Linkedin,700,Springfield,Willis Street,Education,www.linkedin.com,Illinois,United States,60663,Chief Design Engineer,Purchased List,Open - Not Contacted,Hot
+Oren Libbey,Oren,Libbey,olibbey7@shutterfly.com,171-719-7116,Meta,800,St. John's,Signal Hill,Technology,www.meta.com,Newfoundland and Labrador,Canada,E8M,VP Marketing,Partner Referral,Open - Not Contacted,Cold
+Darcy Kingzett,Darcy,Kingzett,dkingzett8@ucsd.edu,434-641-5413,Apple,800,Raleigh,,Technology,www.apple.com,North Carolina,United States,27705,Junior Executive,Phone Inquiry,Closed - Converted,Warm
+Sherwynd Boscher,Sherwynd,Boscher,sboscher9@slideshare.net,629-789-8262,Fox Studios,900,Paris,Paris street,Entertainment,www.foxstudios.com,Aquitaine,France,33036 CEDEX,Analog Circuit Design manager,Web,Closed - Not Converted,Hot
