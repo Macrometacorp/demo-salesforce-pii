@@ -1,4 +1,5 @@
-import { ActionButtons, MM_TOKEN_PREFIX } from "~/constants";
+import { useFetcher } from 'remix';
+import { ActionButtons, AppPaths, FormButtonActions, HttpMethods, MM_TOKEN_PREFIX } from "~/constants";
 import { RowProps } from "~/interfaces";
 import { isMMToken, truncate } from "~/utilities/utils";
 
@@ -24,10 +25,11 @@ export default ({
     Company,
     Status,
     LeadSource: Source,
-    ConsentApproved
+    ConsentRequested
   } = data;
   const isPrivate = isPrivateRegion === "true";
   const isPrivateRecord = !isMMToken(token);
+  const fetcher = useFetcher();
 
   const isButtonDisabled = !isPrivate && isPrivateRecord;
 
@@ -89,9 +91,31 @@ export default ({
         </span>
       </td>
       <td>
-        <span data-tip={ConsentApproved ? 'Approved' : 'Rejected'} className="tooltip tooltip-bottom m-auto" >
-          <input type="checkbox" checked={ConsentApproved || false} className="form-control accent-green-600 ml-4 mt-1 h-5 w-5" onChange={() => {}}/>
-        </span>
+        <fetcher.Form
+          method={HttpMethods.Post}
+          action={AppPaths.UserManagement}
+        >
+          <span
+            data-tip={ConsentRequested ? "Requested" : "Not Requested"}
+            className="tooltip tooltip-bottom m-auto"
+          >
+            <input
+              type="checkbox"
+              checked={ConsentRequested}
+              className="form-control accent-green-600 ml-10 mt-1 h-5 w-5"
+              onChange={(event) => {
+                fetcher.submit(
+                  {
+                    [FormButtonActions.Name]: FormButtonActions.RequestConsent,
+                    value: `${event.target.checked}`,
+                    token: token,
+                  },
+                  { method: "post" }
+                );
+              }}
+            />
+          </span>
+        </fetcher.Form>
       </td>
       <td className="flex">
         <button

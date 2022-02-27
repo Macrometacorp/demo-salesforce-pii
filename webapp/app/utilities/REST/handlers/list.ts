@@ -29,11 +29,9 @@ export default async (request: Request) => {
   const users: Array<UserData> = allResponses?.[0]?.result ?? [];
   const locations: Array<LocationData> = allResponses?.[1]?.result ?? [];
   const consents: Array<UserConsent> = allResponses?.[2]?.result ?? [];
-
   const result = users?.map((user) => {
     const { token } = user;
     
-
     const location = locations.find((location) => {
       return location.value[0].token === token});
     const consent = consents.find((consent) => {
@@ -42,7 +40,7 @@ export default async (request: Request) => {
       ...user,
       ...location?.value[0],
       _key: location?._key,
-      ConsentApproved: consent?.ConsentApproved
+      ConsentRequested: consent?.ConsentRequested
     };
   });
   return result;

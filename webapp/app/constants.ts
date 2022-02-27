@@ -15,6 +15,7 @@ export enum AppPaths {
   Login = "/login",
   Region = "/region",
   UserManagement = "/user-management",
+  PurgeData = "/purge-data",
   Logout = "/logout",
   UserLogin = "/user-login",
   UserDetails = "/user-details"
@@ -46,7 +47,7 @@ export const HEADINGS = [
   "status",
   "source",
   "country",
-  "consent",
+  "request consent",
   "actions",
 ];
 
@@ -136,14 +137,17 @@ export const Queries = {
 
   DeleteUserLeadInfo: () =>
     `REMOVE { _key: @token } IN ${Collections.UserLeadInfo}`,
+  
+  DeleteConsentInfo: () =>
+  `REMOVE { _key: @token } IN ${Collections.UserConsentData}`,
 
   SalesforceLeadQuery: () =>
     "Select id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees from lead",
 
   InsertUserConsent: () =>
     `UPSERT {_key:@token}
-    INSERT { _key: @token, ConsentApproved: @ConsentApproved }
-    UPDATE {ConsentApproved:@ConsentApproved} IN ${Collections.UserConsentData}`,
+    INSERT { _key: @token, ConsentRequested: @ConsentRequested }
+    UPDATE {ConsentRequested:@ConsentRequested} IN ${Collections.UserConsentData}`,
 };
 
 
@@ -183,6 +187,8 @@ export enum FormButtonActions {
   Upload = "upload",
   RefreshCache = "refreshCache",
   BulkUpload = "bulkUpload",
+  RefreshPage = "refreshPage",
+  RequestConsent = "requestConsent",
   AllowConsent = "allowConsent",
   RejectConsent = "rejectConsent"
 }

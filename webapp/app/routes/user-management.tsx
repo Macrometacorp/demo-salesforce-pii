@@ -48,16 +48,17 @@ import handleUpload from "../utilities/REST/handlers/upload";
 import handleList from "../utilities/REST/handlers/list";
 import handleSearch from "../utilities/REST/handlers/search";
 import { bulkLeadRecordUpdate, refreshCache } from '../utilities/REST/salesforce';
+import { updateConsentDetails } from '../utilities/REST/handlers/consent';
 
 export const action: ActionFunction = async ({
   request
 }): Promise<UserManagementActionResult> => {
   const form = await request.formData();
   const actionType =
-    form.get(FormButtonActions.Name)?.toString() ??
-    form.get(FormButtonActions.RefreshCache)?.toString() ??
-    form.get(FormButtonActions.BulkUpload)?.toString() ??
-    "";
+  form.get(FormButtonActions.Name)?.toString() ??
+  form.get(FormButtonActions.RefreshCache)?.toString() ??
+  form.get(FormButtonActions.BulkUpload)?.toString() ??
+  "";
   let result;
   switch (actionType) {
     case FormButtonActions.Create:
@@ -77,6 +78,14 @@ export const action: ActionFunction = async ({
       break;
     case FormButtonActions.BulkUpload:
       result = await bulkLeadRecordUpdate() as any;
+      break;
+    case FormButtonActions.RequestConsent:
+      result = updateConsentDetails(request, form) as any;
+      break;
+    case FormButtonActions.RefreshPage:
+      result = {
+        isPageRefresh: true
+      }
       break;
     default:
       result = {
@@ -171,7 +180,8 @@ export default () => {
         isRefresh,
         errorMessage,
         name,
-        isBulkUpload
+        isBulkUpload,
+        isPageRefresh
       } = actionData;
       let toastType = error
         ? ToastTypes.Error
@@ -193,6 +203,8 @@ export default () => {
           toastMessage = "Cache updated successfully";
         } else if (isBulkUpload) {
           toastMessage = "Bulk data uploaded successfully";
+        } else if (isPageRefresh) {
+          toastMessage = "Page refreshed successfully";
         }
       }
       

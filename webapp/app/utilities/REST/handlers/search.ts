@@ -84,7 +84,7 @@ export default async (request: Request, email: string) => {
         ...user,
         ...locationDetails,
         _key: locationDetails?._key,
-        ConsentApproved: consentDetails?.ConsentApproved
+        ConsentRequested: consentDetails?.ConsentRequested
       },
     ];
   } else {

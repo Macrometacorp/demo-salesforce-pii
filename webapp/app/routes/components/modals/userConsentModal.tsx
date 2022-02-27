@@ -22,30 +22,29 @@ export default ({ showModal, token, onModalClose }: ConsentModalProps) => {
     <div id={getModalId(ModalPaths.UserConsentModal)} className={`modal ${showModal ? "modal-open" : "modal-close"}`}>
       <div className="modal-box">
         <p>Are you sure you want to allow transfer of your data?</p>
-        <fetcher.Form
-          action={`${AppPaths.UserDetails}?token=${token}`}
-          method={HttpMethods.Post}
-        >
           <input type="hidden" name="token" defaultValue={token} />
           <div className="modal-action">
             <button
               className="btn btn-info"
-              type="submit"
               name={FormButtonActions.Name}
               value={FormButtonActions.AllowConsent}
+              onClick={() => {
+                onModalClose();
+              }}
             >
               Allow
             </button>
             <button
               className="btn btn-error"
-              type="submit"
               name={FormButtonActions.Name}
               value={FormButtonActions.RejectConsent}
+              onClick={() => {
+                onModalClose();
+              }}
             >
               Don't Allow
             </button>
           </div>
-        </fetcher.Form>
       </div>
     </div>
   );

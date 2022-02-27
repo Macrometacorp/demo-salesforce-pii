@@ -1,6 +1,8 @@
 import { parse as parseCSV } from "papaparse";
 import { Form, Link, useFetcher, useSubmit, useTransition } from "remix";
-import BulkUploadSVG from "~/routes/components/svgs/bulkupload";
+import SalesForceSVG from "~/routes/components/svgs/salesforce";
+import LatencySVG from "~/routes/components/svgs/latency";
+
 import {
   AppPaths,
   FormButtonActions,
@@ -16,7 +18,7 @@ import ProgressModal from './modals/progressModal';
 
 const FILE_SELECTOR_ID = "file-selector";
 
-export default ({ setShowAddContactModal }: HeaderProps) => {
+export default ({ setShowAddContactModal, setShowLatencyModal }: HeaderProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const submit = useSubmit();
   const [search, setSearch] = useState("");
@@ -64,9 +66,23 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
         </div>
       ) : (
         <>
-          <div className="pb-2">
-            Region: <span className="badge ml-2">{region}</span>
+          <div className="flex flex-row">
+          <div className="flex-none">
+            <div className='p-2'>Region: <span className="badge ml-2">{region}</span></div>
           </div>
+          <div className="flex-none ml-auto mr-1.5">
+          <button
+            className="btn btn-square btn-ghost tooltip tooltip-left"
+            data-tip="View Latency"
+            onClick={() => {
+              setShowLatencyModal(true);
+            }}
+          >
+            <LatencySVG />
+          </button>
+        </div>
+          </div>
+          
           <div className="-mb-4 flex flex-row">
             <Form
               action={
@@ -101,22 +117,7 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
               </button>
             </div>
 
-            <div className="flex-none">
-              <fetcher.Form
-                method={HttpMethods.Post}
-                action={AppPaths.UserManagement}
-              >
-                <button
-                  className={`btn btn-square btn-ghost tooltip`}
-                  data-tip="Bulk Upload"
-                  name={FormButtonActions.Name}
-                  value={FormButtonActions.BulkUpload}
-                  type="submit"
-                >
-                  <BulkUploadSVG />
-                </button>
-              </fetcher.Form>
-            </div>
+           
 
             <div className="flex-none">
               <Form
@@ -164,6 +165,11 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
                 <Link to={AppPaths.Region}>
                   <li>
                     <button className="btn btn-primary">Change Region</button>
+                  </li>
+                </Link>
+                <Link to={AppPaths.PurgeData}>
+                  <li>
+                    <button className="btn btn-primary">Purge Data</button>
                   </li>
                 </Link>
                 <Link to={AppPaths.Logout} reloadDocument>

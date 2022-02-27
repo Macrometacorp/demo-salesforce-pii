@@ -8,8 +8,7 @@ export const updateConsentDetails = async (
   try {
     const token = `${form.get("token")?.toString()}`;
     const consent =
-      `${form.get(FormButtonActions.Name)?.toString()}` ===
-      FormButtonActions.AllowConsent;
+      `${form.get("value")?.toString()}` === "true";
     if (!token) {
       throw new Error("Token name is required");
     }
@@ -19,7 +18,7 @@ export const updateConsentDetails = async (
       Queries.InsertUserConsent(),
       {
         token,
-        ConsentApproved: consent,
+        ConsentRequested: consent,
       },
       true
     );

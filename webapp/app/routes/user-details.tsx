@@ -39,10 +39,6 @@ export const action: ActionFunction = async ({
     case FormButtonActions.Update:
       result = await handleUpdate(request, form);
       break;
-    case FormButtonActions.AllowConsent:
-    case FormButtonActions.RejectConsent:
-      result = await updateConsentDetails(request, form) as any;
-      break;
     default:
       result = {
         error: true,
@@ -92,16 +88,25 @@ export const loader: LoaderFunction = async ({ request }) => {
     true
   ).then((response) => response.json());
 
-  const [piiResponse, locationResponse] = await Promise.all([
+  const userConsentPromise:any = c8ql(
+    request,
+    Fabrics.Global,
+    Queries.SearchConsentByToken(),
+    { token: piiToken },
+    true
+  ).then((response) => response.json());
+
+  const [piiResponse, locationResponse, useConsentResponse] = await Promise.all([
     piiPromise,
     locationPromise,
+    userConsentPromise
   ]);
-
   try {
     const parsedPiiResponse = isPrivateRecord
       ? JSON.parse(piiResponse)?.data
       : piiResponse?.result?.[0];
     const locationData = locationResponse?.result?.[0];
+    const consentData = useConsentResponse?.result?.[0];
     const { login, email, phone, name } = parsedPiiResponse;
     const annoName = isPrivateRecord ? login : name;
     const decryptedData: UserData = {
@@ -114,7 +119,8 @@ export const loader: LoaderFunction = async ({ request }) => {
       phone,
       token: piiToken,
       isPrivateRecord,
-      _key: locationData._key
+      _key: locationData._key,
+      ConsentRequested: consentData?.ConsentRequested
     };
     return decryptedData;
   } catch (error: any) {
@@ -130,7 +136,7 @@ export default () => {
   const formEl = useRef(null);
   const [showCommonModal, setShowCommonModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showConsentModal, setShowConsentModal] = useState(true);
+  const [showConsentModal, setShowConsentModal] = useState(false);
   const [sharedEnpoint, setSharedEndpoint] = useState("");
   const [isEdit, setIsEdit] = useState(false);
   const [editMessage, setEditMessage] = useState("Edit");
@@ -146,6 +152,12 @@ export default () => {
       });
     };
   };
+
+  useEffect(() => {
+    if(decryptData.ConsentRequested) {
+      setShowConsentModal(true)
+    }
+  }, [decryptData.ConsentRequested])
 
   useEffect(() => {
     setDecryptData(loaderData);

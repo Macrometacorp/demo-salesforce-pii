@@ -58,7 +58,7 @@ export interface LeadInfo {
 
 export interface UserConsent {
   _key : string;
-  ConsentApproved ?: boolean;
+  ConsentRequested ?: boolean;
 }
 
 export interface UserData extends PiiData, LocationData, LeadInfo, UserConsent  {}
