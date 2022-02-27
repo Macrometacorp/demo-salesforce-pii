@@ -9,11 +9,11 @@ Macrometa Salesforce PII Demo app is a fullstack admin/user portal that showcase
 
 | **Federation**                                        | **Email**                              | **Passsword** |
 | ----------------------------------------------------- | -------------------------------------- | ------------- |
-| [Global Data Network](https://gdn.paas.macrometa.io/) | demo@macrometa.io | `xxxxxxxx`    |
+| [Global Data Network](https://gdn.paas.macrometa.io/) | demo@macrometa.io | `dexxxxxxx`    |
 
 | **Salesforce Web Console URL**                                        | **Email**                              | **Passsword** |
 | ----------------------------------------------------- | -------------------------------------- | ------------- |
-| [Salesforce web console](https://macrometa-dev-ed.lightning.force.com/) | salesforce@macrometa.com | `xxxxxxxx`    |
+| [Salesforce web console](https://macrometa-dev-ed.lightning.force.com/) | salesforce@macrometa.com | `Welxxxxx3!`    |
 
 ## Overview
 
