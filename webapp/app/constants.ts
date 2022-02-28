@@ -143,7 +143,7 @@ export const Queries = {
   `REMOVE { _key: @token } IN ${Collections.UserConsentData}`,
 
   SalesforceLeadQuery: () =>
-    "Select id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees from lead",
+    "Select id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees,description from lead",
 
   InsertUserConsent: () =>
     `UPSERT {_key:@token}

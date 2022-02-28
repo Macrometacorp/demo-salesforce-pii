@@ -51,6 +51,23 @@ export const getAccessToken = async () => {
   return token;
 };
 
+export const executeQuery = async (queryString: string, bindVars: any) => {
+  const result = await fetch(
+    `${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `apikey ${MM_API_KEY}`,
+      },
+      body: JSON.stringify({
+        query: queryString,
+        bindVars: bindVars,
+      }),
+    }
+  );
+  const queryResult = await result.json();
+  return queryResult;
+};
 export const getCachedData = async () => {
   const keys = await MMCache.Instance.allKeys();
   const cachedSavedData: any = [];
@@ -62,40 +79,52 @@ export const getCachedData = async () => {
   return cachedSavedData;
 };
 
-export const executeQuery = async (queryString:string,bindVars:any) => {
-  const result = await fetch(
-    `${FEDERATION_URL}/_fabric/pii_global_sf/_api/cursor`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `apikey ${MM_API_KEY}`,
-      },
-      body: JSON.stringify({
-        query:queryString,
-        bindVars:bindVars,
-      }),
-    }
-  );
-  const queryResult = await result.json();
-  return queryResult;
-};
-
-export const bulkLeadRecordUpdate = async () => {
+export const getCachedContent = async () => {
   try {
     const keys = await MMCache.Instance.allKeys();
     const cachedSavedData: any = [];
     const keysResult = keys.result;
     for (const key of keysResult) {
       const contents = await MMCache.Instance.get(key);
-      delete contents.value[0]["isEditable"];
-      if (!contents.value[0]["isUploaded"]) {
-        delete contents.value[0]["isUploaded"];
-        const queryResult = await executeQuery( "For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname,description:doc.token}",{ token: contents.value[0]["token"] })
-        if (queryResult.result.length > 0) {
-          delete queryResult.result[0]["name"];
+      cachedSavedData.push(contents.value[0]);
+    }
+
+    return { keys: keysResult, cachedContent: cachedSavedData };
+  } catch (error: any) {
+    console.log("error", error);
+    return {
+      error: true,
+      errorMessage:
+        error?.message || "Something went wrong while updating cache",
+      name: error?.name || "Error",
+    };
+  }
+};
+
+export const bulkLeadRecordUpdate = async () => {
+  try {
+    const cachedSavedData: any = [];
+    const { keys, cachedContent } = await getCachedContent();
+
+    const queryResult = await executeQuery(
+      "For doc in users return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname,description:doc.token}",
+      {}
+    );
+
+    for (const data of cachedContent) {
+      console.log("data-------", data);
+      delete data["isEditable"];
+      if (!data["isUploaded"]) {
+        delete data["isUploaded"];
+        const filteredQueryResult = queryResult.result.filter(
+          (element: any) => element.token == data.token
+        );
+
+        if (filteredQueryResult.length > 0) {
+          delete filteredQueryResult[0]["name"];
           const combinedLeadData = {
-            ...queryResult.result[0],
-            ...contents.value[0],
+            ...filteredQueryResult[0],
+            ...data,
           };
           delete combinedLeadData["token"];
           cachedSavedData.push(combinedLeadData);
@@ -131,7 +160,7 @@ export const bulkLeadRecordUpdate = async () => {
       const getUrl = buildURL(MMCache.jobUrl, jobId);
       const closeJob = await fetchWrapper(getUrl, methodOptions);
       console.log("closeJob", closeJob);
-     // await refreshCache();
+      await refreshCache(keys, cachedContent);
       return new Response(
         JSON.stringify({ message: "Data Uploaded" }),
         optionsObj
@@ -146,47 +175,20 @@ export const bulkLeadRecordUpdate = async () => {
 
 export const deleteStaleCacheHandler = async () => {
   try {
-  const allKeyResult = await MMCache.Instance.clear();
-  // for (const keys of allKeyResult.result) {
+    const allKeyResult = await MMCache.Instance.allKeys();
 
-  //     await MMCache.Instance.delete(keys);
-
-  // }
-  return new Response(JSON.stringify({ message: "Cache Cleared" }), optionsObj);
-} catch (error) {
-  console.error("error", error);
-  throw error;
-}
- 
+    for (const keys of allKeyResult.result) {
+      await MMCache.Instance.delete(keys);
+    }
+    return new Response(
+      JSON.stringify({ message: "Cache Cleared" }),
+      optionsObj
+    );
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
 };
-
-// export const getresponse = async (token: string) => {
-//   let data;
-//   try {
-//     const cacheResponse = await MMCache.Instance.getResponse({
-//       url: token,
-//     });
-//     data = cacheResponse.value;
-//   } catch (err: any) {
-//     if (err.error && err.code === 404) {
-//       await getAccessToken();
-//       let handlerResponse = await leadListHandler();
-//       data = await handlerResponse.json();
-//       if (data.statusCode !== 401) {
-//         try {
-//           await MMCache.Instance.setResponse({
-//             url: token,
-//             data,
-//             ttl: 10800,
-//           });
-//         } catch (err) {
-//           console.error("error", err);
-//         }
-//       }
-//     }
-//   }
-//   return new Response(JSON.stringify(data), optionsObj);
-// };
 
 export const deleteleadListHandler = async (id: string) => {
   const getUrl = buildURL(
@@ -197,8 +199,8 @@ export const deleteleadListHandler = async (id: string) => {
   );
   const token = await getAccessToken();
   const methodOptions = getOptions({ method: "DELETE" }, token);
-  const response = await fetchWrapper(getUrl, methodOptions,true);
-   const body = JSON.stringify(response);
+  const response = await fetchWrapper(getUrl, methodOptions, true);
+  const body = JSON.stringify(response);
   return new Response(body, optionsObj);
 };
 
@@ -240,30 +242,6 @@ export const newLeadCachedResponseHandler = async (token: string) => {
   }
 };
 
-export const getCachedContent = async () => {
-  try {
-    const keys = await MMCache.Instance.allKeys();
-    const cachedSavedData: any = [];
-    const keysResult = keys.result;
-    for (const key of keysResult) {
-      // console.log("key", key);
-      const contents = await MMCache.Instance.get(key);
-      // console.log("contents", contents);
-      cachedSavedData.push(contents.value[0]);
-    }
-
-    return { keys: keysResult, cachedContent: cachedSavedData };
-  } catch (error: any) {
-    console.log("error", error);
-    return {
-      error: true,
-      errorMessage:
-        error?.message || "Something went wrong while updating cache",
-      name: error?.name || "Error",
-    };
-  }
-};
-
 export const leadListHandler = async () => {
   const query = Queries.SalesforceLeadQuery();
   const getUrl = buildURL(
@@ -276,12 +254,10 @@ export const leadListHandler = async () => {
   const token = await getAccessToken();
   const methodOptions = getOptions({ method: "GET" }, token);
   const response = await fetchWrapper(getUrl, methodOptions);
-  console.log("res", response);
   return response;
   // const body = JSON.stringify(response);
   // return new Response(body, optionsObj);
 };
-
 
 export const updateleadListHandler = async (
   request: Request,
@@ -317,7 +293,7 @@ export const updateleadListHandler = async (
         resolve(null);
       }, 300);
     });
-    
+
     const toBeUpdatedSalesforceLeadData = JSON.stringify({
       FirstName: result.result[0]?.firstName,
       LastName: result.result[0]?.lastname,
@@ -338,7 +314,7 @@ export const updateleadListHandler = async (
       Street: data.value[0].Street,
       City: data.value[0].City,
     });
-    
+
     console.log("toBeUpdatedSalesforceLeadData", toBeUpdatedSalesforceLeadData);
     const accessToken = await getAccessToken();
     const getUrl = buildURL(
@@ -367,37 +343,38 @@ export const updateleadListHandler = async (
   }
 };
 
-export const refreshCache = async () => {
+export const refreshCache = async (keysData = [], cachedContentData = []) => {
   try {
-    const { keys, cachedContent } = await getCachedContent();
-    // console.log("cachedContent", cachedContent);
-    //  await deleteStaleCacheHandler();
+    let keys = keysData;
+    let cachedContent = cachedContentData;
+    if (!(keys.length > 0 || cachedContent.length > 0)) {
+      const result = await getCachedContent();
+      keys = result.keys;
+      cachedContent = result.cachedContent;
+    }
+
+    await deleteStaleCacheHandler();
     const result = await leadListHandler();
-    // console.log("leadListHandler", result);
-    // const res = await result.json();
 
     const notUploadedCachedData = cachedContent.filter(
       (elem: any) => !elem.isUploaded
     );
-    // for (const cac of notUploadedCachedData) {
-    //   const res = await MMCache.Instance.setResponse({
-    //     url: cac.token,
-    //     data: [cac],
-    //     ttl: -1,
-    //   });
-    // }
+    const queryResult = await executeQuery(
+      "For doc in users  return {token:doc.token,email:doc.email}",
+      {}
+    );
+
+    const token = queryResult.result ?? { token: `sf_${uuidv4()}` };
+
     let temp = [];
     for (const ks of result.records) {
       delete ks.attributes;
       delete ks.Salutation;
-      const queryResult = await executeQuery( "For doc in users filter doc.email==@email return {token:doc.token}", { email: ks.Email });
-     const token= queryResult.result[0] ?? { token: `sf_${uuidv4()}` }
-      let data = { ...ks, ...token, isUploaded: true };
+      let data = { ...ks, token: ks.Description, isUploaded: true };
       temp.push(data);
     }
-    console.log("templeadListHandler", temp);
-    const newData = [...notUploadedCachedData,...temp];
-    console.log("new cached data", newData);
+    const newData = [...notUploadedCachedData, ...temp];
+
     for (const ks of newData) {
       const res = await MMCache.Instance.setResponse({
         url: ks.token,
@@ -407,6 +384,7 @@ export const refreshCache = async () => {
     }
     return { isRefresh: true };
   } catch (error: any) {
+    console.log("er", error);
     return {
       error: true,
       errorMessage:
