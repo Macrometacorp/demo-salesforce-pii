@@ -90,7 +90,7 @@ export const bulkLeadRecordUpdate = async () => {
       delete contents.value[0]["isEditable"];
       if (!contents.value[0]["isUploaded"]) {
         delete contents.value[0]["isUploaded"];
-        const queryResult = await executeQuery( "For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname}",{ token: contents.value[0]["token"] })
+        const queryResult = await executeQuery( "For doc in users filter doc.token==@token return {email:doc.email,name:doc.name,phone:doc.phone,token:doc.token,firstName:doc.firstName,lastname:doc.lastname,description:doc.token}",{ token: contents.value[0]["token"] })
         if (queryResult.result.length > 0) {
           delete queryResult.result[0]["name"];
           const combinedLeadData = {

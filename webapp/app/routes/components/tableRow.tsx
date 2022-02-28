@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useFetcher } from "remix";
 import {
   ActionButtons,
@@ -36,10 +37,10 @@ export default ({
   const isPrivate = isPrivateRegion === "true";
   const isPrivateRecord = !isMMToken(token);
   const fetcher = useFetcher();
-
+  const actionRef = useRef<any>(null);
   const isButtonDisabled = !isPrivate && isPrivateRecord;
 
-  let showClass = "flex-1 btn-sm btn-ghost text-center leading-7 text-neutral";
+  let showClass = "flex-1 btn btn-ghost text-center leading-7 text-neutral";
   if (isPrivate) {
     showClass += isPrivateRecord ? "" : " invisible";
   } else {
@@ -129,31 +130,30 @@ export default ({
         </fetcher.Form>
       </td>
       <td className="flex">
-        <div className="dropdown dropdown-left dropdown-end">
-          <label tabIndex={0} className="m-1 btn">
-            Click
-          </label>
+        <div className="dropdown dropdown-left dropdown-end" ref={actionRef}>
+          <div tabIndex={0} className="m-1 btn btn-sm btn-primary">
+            Actions
+          </div>
           <ul
             tabIndex={0}
             className="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52"
           >
-            <li>
-              {" "}
+            <li className='text-blue-600'>
               <button
-                className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-blue-600 mr-2 ${
+                className={`flex-1 btn btn-ghost btn-sm text-center leading-7  mr-2 ${
                   isButtonDisabled ? "btn-disabled" : ""
                 }`}
                 disabled={isButtonDisabled}
-                onClick={() => {
+                onClick={(event) => {
                   onActionButtonClicked(ActionButtons.Edit, data);
                 }}
               >
                 {ActionButtons.Edit}
               </button>
             </li>
-            <li>
+            <li className='text-error'>
               <button
-                className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-error mr-2 ${
+                className={`flex-1 btn btn-ghost btn-sm text-center leading-7 mr-2 ${
                   isButtonDisabled ? "btn-disabled" : ""
                 }`}
                 disabled={isButtonDisabled}
@@ -164,9 +164,9 @@ export default ({
                 {ActionButtons.Remove}
               </button>
             </li>
-           <li>
+            <li className='text-green-600'>
               <button
-                className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-green-600 mr-2 text-neutral ${
+                className={`flex-1 btn btn-ghost btn-sm text-center leading-7 mr-2 text-neutral ${
                   isButtonDisabled ? "btn-disabled" : ""
                 }`}
                 disabled={isButtonDisabled}
@@ -177,17 +177,19 @@ export default ({
                 {ActionButtons.Share}
               </button>
             </li>
-            <li>
-              <button
-                className={showClass}
-                disabled={isButtonDisabled}
-                onClick={() => {
-                  onActionButtonClicked(ActionButtons.Show, data);
-                }}
-              >
-                {ActionButtons.Show}
-              </button>
-            </li>
+            {isPrivateRecord && (
+              <li className='text-neutral'>
+                <button
+                  className={showClass}
+                  disabled={isButtonDisabled}
+                  onClick={() => {
+                    onActionButtonClicked(ActionButtons.Show, data);
+                  }}
+                >
+                  {ActionButtons.Show}
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </td>
