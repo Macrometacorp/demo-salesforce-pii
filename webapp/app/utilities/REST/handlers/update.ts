@@ -79,10 +79,7 @@ export default async (
       }
     }
 
-    const locationRes = await c8ql(
-      request,
-      Fabrics.Global,
-      Queries.UpdateLocation(),
+    const userLeadInfoData = 
       {
         _key,
         value: [
@@ -107,80 +104,9 @@ export default async (
             token,
           },
         ],
-      },
-      true
-    );
+      }
 
-    await new Promise((resolve, reject) => { 
-        setTimeout(() => {resolve(null)}, 300);
-    });
-
-    const userData = await c8ql(
-      request,
-      Fabrics.Global,
-      Queries.SearchUserByToken(),
-      {
-        token,
-      },
-      true
-    );
-
-    const result: any = await userData.json();
-    const locationJsonRes = await locationRes.json();
-    if (locationJsonRes?.error) {
-      throw new Error(JSON.stringify(locationJsonRes));
-    }
-
-    const getUrls = buildURL(
-      SALESFORCE_LOGIN_URL,
-      "/services/oauth2",
-      "/token",
-      `?grant_type=password&client_id=${SALESFORCE_CLIENT_ID}&client_secret=${SALESFORCE_CLIENT_SECRET}&username=${SALESFORCE_USERNAME}&password=${SALESFORCE_PASSWORD}`
-    );
-
-    const methodOptionss = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-    
-    const responses = await fetchWrapper(getUrls, methodOptionss);
-    const tokens = responses.access_token;
-    const getUrl = buildURL(
-      SALESFORCE_INSTANCE_URL,
-      SALESFORCE_INSTANCE_SUB_URL,
-      "/sobjects/Lead/",
-      `${Id}`
-    );
-
-    const response = await fetch(getUrl, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${tokens}`,
-      },
-      body: JSON.stringify({
-        firstname:  result.result[0]?.firstName,
-        lastname: result.result[0]?.lastname,
-        email:  result.result[0]?.email,
-        phone:  result.result[0]?.phone,
-        IsUnreadByOwner,
-        State,
-        Country,
-        Company,
-        Status,
-        PostalCode,
-        Title,
-        NumberOfEmployees,
-        Website,
-        LeadSource,
-        Industry,
-        Rating,
-        Street,
-        City,
-      }),
-    });
+const updateSalesforceLeadData = await updateleadListHandler(request,Id,userLeadInfoData);
     return { isPrivate, isUpdated: true };
   } catch (error: any) {
     console.error(error);

@@ -42,7 +42,7 @@ export default ({
   return (
     <tr
       className={activeRow === token ? "active" : ""}
-      style={{ color: !isUploaded ? "green" : "black" }}
+      style={{ color: !isUploaded ? "#2463EB" : "black" }}
       onMouseEnter={() => {
         setActiveRow(token);
       }}

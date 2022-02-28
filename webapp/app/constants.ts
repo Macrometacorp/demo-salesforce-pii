@@ -15,7 +15,7 @@ export enum AppPaths {
   Login = "/login",
   Region = "/region",
   UserManagement = "/user-management",
-  PurgeData = "/purge-data",
+  PurgeData = "/purge",
   Logout = "/logout",
   UserLogin = "/user-login",
   UserDetails = "/user-details"
@@ -79,7 +79,7 @@ export const SHAREABLE_CURL_COMMAND_MESSAGE =
 export const Queries = {
   GetUsers: () => `FOR doc IN ${Collections.Users} RETURN doc`,
 
-  GetLocations: () => `FOR doc in ${Collections.UserLeadInfo} RETURN doc`,
+  GetUserLeadInfo: () => `FOR doc in ${Collections.UserLeadInfo} RETURN doc`,
 
   GetUserConsents: () => `FOR doc in ${Collections.UserConsentData} RETURN doc`,
 
@@ -92,7 +92,7 @@ export const Queries = {
   InsertLocation: () =>
     `INSERT { _key: @token, token: @token, state: @state, country: @country, zipcode: @zipcode, job_title: @job_title } INTO ${Collections.UserLeadInfo}`,
 
-  UpdateLocation: () =>
+  UpdateUserLeadInfo: () =>
     `UPDATE @_key with {"value": @value } IN ${Collections.UserLeadInfo}`,
 
   SearchUserByEmail: () =>
