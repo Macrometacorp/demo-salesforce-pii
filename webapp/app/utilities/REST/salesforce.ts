@@ -147,7 +147,6 @@ export const bulkLeadRecordUpdate = async () => {
 export const deleteStaleCacheHandler = async () => {
   try {
   const allKeyResult = await MMCache.Instance.clear();
-  console.log("allL",allKeyResult)
   // for (const keys of allKeyResult.result) {
 
   //     await MMCache.Instance.delete(keys);
@@ -247,9 +246,9 @@ export const getCachedContent = async () => {
     const cachedSavedData: any = [];
     const keysResult = keys.result;
     for (const key of keysResult) {
-      console.log("key", key);
+      // console.log("key", key);
       const contents = await MMCache.Instance.get(key);
-      console.log("contents", contents);
+      // console.log("contents", contents);
       cachedSavedData.push(contents.value[0]);
     }
 
@@ -275,7 +274,6 @@ export const leadListHandler = async () => {
   );
 
   const token = await getAccessToken();
-  console.log("token", token);
   const methodOptions = getOptions({ method: "GET" }, token);
   const response = await fetchWrapper(getUrl, methodOptions);
   console.log("res", response);
@@ -288,7 +286,8 @@ export const leadListHandler = async () => {
 export const updateleadListHandler = async (
   request: Request,
   id: string,
-  data: any
+  data: any,
+  token: string
 ) => {
   try {
     //update in cache
@@ -300,12 +299,9 @@ export const updateleadListHandler = async (
       true
     );
     const userLeadInfoJsonRes = await userLeadInfo.json();
-    console.log("userLeadInfoJsonRes", userLeadInfoJsonRes);
     if (userLeadInfoJsonRes?.error) {
       throw new Error(JSON.stringify(userLeadInfoJsonRes));
     }
-    const token = await getAccessToken();
-    console.log("toBeUpdatedSalesforceLeadDatatoken ", token);
     const userData = await c8ql(
       request,
       Fabrics.Global,
@@ -316,14 +312,12 @@ export const updateleadListHandler = async (
       true
     );
     const result: any = await userData.json();
-    console.log("toBeUpdatedSalesforceLeadData", result);
-    console.log("result", result);
     await new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(null);
       }, 300);
     });
-
+    
     const toBeUpdatedSalesforceLeadData = JSON.stringify({
       FirstName: result.result[0]?.firstName,
       LastName: result.result[0]?.lastname,
@@ -346,18 +340,18 @@ export const updateleadListHandler = async (
     });
     
     console.log("toBeUpdatedSalesforceLeadData", toBeUpdatedSalesforceLeadData);
+    const accessToken = await getAccessToken();
     const getUrl = buildURL(
       SALESFORCE_INSTANCE_URL,
       SALESFORCE_INSTANCE_SUB_URL,
       "/sobjects/Lead/",
       `${id}`
     );
-    console.log("7url", getUrl);
     const response = await fetch(getUrl, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: toBeUpdatedSalesforceLeadData,
     });
@@ -376,10 +370,10 @@ export const updateleadListHandler = async (
 export const refreshCache = async () => {
   try {
     const { keys, cachedContent } = await getCachedContent();
-    console.log("cachedContent", cachedContent);
+    // console.log("cachedContent", cachedContent);
     //  await deleteStaleCacheHandler();
     const result = await leadListHandler();
-    console.log("leadListHandler", result);
+    // console.log("leadListHandler", result);
     // const res = await result.json();
 
     const notUploadedCachedData = cachedContent.filter(
