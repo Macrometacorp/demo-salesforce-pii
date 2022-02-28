@@ -106,7 +106,7 @@ export default async (
         ],
       }
 
-const updateSalesforceLeadData = await updateleadListHandler(request,Id,userLeadInfoData);
+const updateSalesforceLeadData = await updateleadListHandler(request,Id,userLeadInfoData, token);
     return { isPrivate, isUpdated: true };
   } catch (error: any) {
     console.error(error);
