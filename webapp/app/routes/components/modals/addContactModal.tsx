@@ -83,7 +83,7 @@ export default ({
             <label className="label font-semibold">
               <span className="label-text">Lead Status</span>
             </label>
-            <select className="select select-bordered" name="leadStatus">
+            <select className="select select-bordered" name="leadStatus" required>
               <option disabled selected>
                 Lead Status
               </option>
@@ -151,7 +151,7 @@ export default ({
             <label className="label font-semibold">
               <span className="label-text">Lead Source</span>
             </label>
-            <select className="select select-bordered" name="leadSource">
+            <select className="select select-bordered" name="leadSource" required>
               <option disabled aria-label="None" value="" selected></option>
               <option value={"Web"}>Web</option>
               <option value={"Phone Inquiry"}>Phone Inquiry</option>

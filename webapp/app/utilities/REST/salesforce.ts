@@ -291,7 +291,7 @@ export const updateleadListHandler = async (
     await new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(null);
-      }, 300);
+      }, 600);
     });
 
     const toBeUpdatedSalesforceLeadData = JSON.stringify({

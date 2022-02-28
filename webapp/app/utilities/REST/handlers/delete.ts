@@ -14,6 +14,11 @@ export default async (
 
   const isPrivate = !isMMToken(token);
   try {
+    const leadInfoData = await getCachedData();
+    const id =leadInfoData.filter((element:any)=>element.token==token)
+    if(id[0]?.Id)
+      await deleteleadListHandler(id[0].Id);
+
     if (isPrivate) {
       const resText = await piiDeleteUser(token).then((response) =>
         response.text()
@@ -34,9 +39,7 @@ export default async (
         throw new Error(JSON.stringify(userRes));
       }
     }
-    const leadInfoData = await getCachedData();
-    const id =leadInfoData.filter((element:any)=>element.token==token)
-    const res = await deleteleadListHandler(id[0].Id);
+    
     const locationRes = await c8ql(
       request,
       Fabrics.Global,
@@ -58,7 +61,7 @@ export default async (
       },
       isApiKey
     ).then((request) => request.json());
-    if (consentData?.error) {
+    if (consentData?.error && consentData.errorNum !== 1202) {
       throw new Error(JSON.stringify(consentData));
     }
     return { isPrivate, isDeleted: true };
