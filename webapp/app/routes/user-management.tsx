@@ -80,7 +80,11 @@ export const action: ActionFunction = async ({
       result = await bulkLeadRecordUpdate() as any;
       break;
     case FormButtonActions.RequestConsent:
-      result = updateConsentDetails(request, form) as any;
+      await updateConsentDetails(request, form) as any;
+      // will not show pop-up due to a bug
+      result = {
+        isConsent: true
+      }
       break;
     case FormButtonActions.RefreshPage:
       result = {
@@ -170,7 +174,7 @@ export default () => {
   }, [showToast]);
 
   useEffect(() => {
-    if (actionData) {
+    if (actionData && !actionData?.isConsent) {
       const {
         error,
         isPrivate,
