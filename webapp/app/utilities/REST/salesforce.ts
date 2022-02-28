@@ -5,6 +5,7 @@ import Papa from "papaparse";
 import {
   Collections,
   createJobBody,
+  deleteJobBody,
   Fabrics,
   optionsObj,
   Queries,
@@ -68,6 +69,7 @@ export const executeQuery = async (queryString: string, bindVars: any) => {
   const queryResult = await result.json();
   return queryResult;
 };
+
 export const getCachedData = async () => {
   const keys = await MMCache.Instance.allKeys();
   const cachedSavedData: any = [];
@@ -112,7 +114,6 @@ export const bulkLeadRecordUpdate = async () => {
     );
 
     for (const data of cachedContent) {
-      console.log("data-------", data);
       delete data["isEditable"];
       if (!data["isUploaded"]) {
         delete data["isUploaded"];
@@ -391,5 +392,61 @@ export const refreshCache = async (keysData = [], cachedContentData = []) => {
         error?.message || "Something went wrong while updating cache",
       name: error?.name || "Error",
     };
+  }
+};
+
+
+export const bulkLeadRecordDelete = async () => {
+  try {
+    const cachedSavedData: any = [];
+    const { keys, cachedContent } = await getCachedContent();
+
+
+
+    for (const data of cachedContent) {
+      console.log("Adadada",data) 
+      cachedSavedData.push({"Id":data.Id});
+      console.log("Adadada",cachedSavedData)
+    } //end of for
+    const token = await getAccessToken();
+     const csv = Papa.unparse(cachedSavedData);
+    const methodOptions = getOptions(
+      { method: "POST", body: deleteJobBody },
+      token
+    );
+    const createJobResult = await fetchWrapper(MMCache.jobUrl, methodOptions);
+    console.log("createJobResult",createJobResult)
+    const jobId = createJobResult.id;
+    console.log("jobID", jobId);
+    let uploadBulkApi;
+    try {
+      const methodOptions = getOptions(
+        { method: "DELETE", body: csv },
+        token,
+        "text/csv"
+      );
+      const getUrl = buildURL(MMCache.jobUrl, `${jobId}/batches`);
+      uploadBulkApi = await fetchWrapper(getUrl, methodOptions, true);
+    } catch (error) {
+      console.error("the errors", error);
+    }
+    if (uploadBulkApi.statusCode === 201) {
+      const methodOptions = getOptions(
+        { method: "PATCH", body: JSON.stringify({ state: "UploadComplete" }) },
+        token
+      );
+      const getUrl = buildURL(MMCache.jobUrl, jobId);
+      const closeJob = await fetchWrapper(getUrl, methodOptions);
+      console.log("closeJob", closeJob);
+      await refreshCache(keys, cachedContent);
+      return new Response(
+        JSON.stringify({ message: "Data Uploaded" }),
+        optionsObj
+      );
+    }
+    return { isBulkUpload: true };
+  } catch (err) {
+    throw err;
+    // return new Response("No data to upload");
   }
 };

@@ -26,7 +26,8 @@ export const c8ql = async (
   fabric: string,
   query: string,
   bindVars: Record<string, unknown> = {},
-  isApiKey: boolean = false
+  isApiKey: boolean = false,
+  federation=`${FEDERATION_URL}`
 ) => {
   let authorization = "";
   if (isApiKey) {
@@ -36,7 +37,7 @@ export const c8ql = async (
     const { [Session.Jwt]: token } = await getAuthTokens(request);
     authorization = `bearer ${token}`;
   }
-  return fetch(`${FEDERATION_URL}/_fabric/${fabric}/_api/cursor`, {
+  return fetch(`${federation}/_fabric/${fabric}/_api/cursor`, {
     method: "POST",
     headers: {
       Authorization: authorization,

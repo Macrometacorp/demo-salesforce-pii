@@ -155,11 +155,14 @@ export const Queries = {
     UPDATE {ConsentRequested:@ConsentRequested} IN ${Collections.UserConsentData}`,
 
   TruncateGlobalCollections: () =>
-    `FOR user IN ${Collections.PiiUsers} REMOVE user IN ${Collections.PiiUsers}
-  FOR lead IN ${Collections.UserLeadInfo} REMOVE lead IN ${Collections.UserLeadInfo}
-  FOR consent IN ${Collections.UserConsentData} REMOVE consent IN ${Collections.UserConsentData}`,
+    `let a = (FOR user IN ${Collections.Users} REMOVE user IN ${Collections.Users})
+     let b = (FOR lead IN ${Collections.UserLeadInfo} REMOVE lead IN ${Collections.UserLeadInfo})
+     let c = (FOR consent IN ${Collections.UserConsentData} REMOVE consent IN ${Collections.UserConsentData})
+     return {a,b,c}
+  `,
 
-  TruncateEuCollections: () => `FOR user IN ${Collections.PiiUsers} REMOVE user IN ${Collections.PiiUsers}`,
+  TruncateEuCollections: () =>
+    `FOR user IN ${Collections.PiiUsers} REMOVE user IN ${Collections.PiiUsers}`,
 };
 
 export const optionsObj = {
@@ -171,6 +174,13 @@ export const optionsObj = {
 export const createJobBody = JSON.stringify({
   object: "Lead",
   operation: "insert",
+  contentType: "CSV",
+  lineEnding: "CRLF",
+});
+
+export const deleteJobBody = JSON.stringify({
+  object: "Lead",
+  operation: "hardDelete",
   contentType: "CSV",
   lineEnding: "CRLF",
 });
