@@ -167,11 +167,11 @@ export default ({ setShowAddContactModal, setShowLatencyModal }: HeaderProps) =>
                     <button className="btn btn-primary">Change Region</button>
                   </li>
                 </Link>
-                <Link to={AppPaths.PurgeData}>
+                {/* <Link to={AppPaths.PurgeData}>
                   <li>
                     <button className="btn btn-primary">Purge Data</button>
                   </li>
-                </Link>
+                </Link> */}
                 <Link to={AppPaths.Logout} reloadDocument>
                   <li>
                     <button className="btn btn-primary">Logout</button>
