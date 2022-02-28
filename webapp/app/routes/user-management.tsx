@@ -49,6 +49,7 @@ import handleList from "../utilities/REST/handlers/list";
 import handleSearch from "../utilities/REST/handlers/search";
 import { bulkLeadRecordUpdate, refreshCache } from '../utilities/REST/salesforce';
 import { updateConsentDetails } from '../utilities/REST/handlers/consent';
+import handlePurge from "../utilities/REST/handlers/purge";
 
 export const action: ActionFunction = async ({
   request
@@ -85,6 +86,9 @@ export const action: ActionFunction = async ({
       result = {
         isConsent: true
       }
+      break;
+    case FormButtonActions.Purge:
+      result = await handlePurge(request);
       break;
     case FormButtonActions.RefreshPage:
       result = {

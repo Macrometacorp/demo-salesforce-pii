@@ -14,11 +14,14 @@ import { useEffect, useState } from "react";
 import ContactSVG from "../components/svgs/contact";
 import UploadSVG from "../components/svgs/upload";
 import { HeaderProps } from "~/interfaces";
-import ProgressModal from './modals/progressModal';
+import ProgressModal from "./modals/progressModal";
 
 const FILE_SELECTOR_ID = "file-selector";
 
-export default ({ setShowAddContactModal, setShowLatencyModal }: HeaderProps) => {
+export default ({
+  setShowAddContactModal,
+  setShowLatencyModal,
+}: HeaderProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const submit = useSubmit();
   const [search, setSearch] = useState("");
@@ -67,22 +70,24 @@ export default ({ setShowAddContactModal, setShowLatencyModal }: HeaderProps) =>
       ) : (
         <>
           <div className="flex flex-row">
-          <div className="flex-none">
-            <div className='p-2'>Region: <span className="badge ml-2">{region}</span></div>
+            <div className="flex-none">
+              <div className="p-2">
+                Region: <span className="badge ml-2">{region}</span>
+              </div>
+            </div>
+            <div className="flex-none ml-auto mr-1.5">
+              <button
+                className="btn btn-square btn-ghost tooltip tooltip-left"
+                data-tip="View Latency"
+                onClick={() => {
+                  setShowLatencyModal(true);
+                }}
+              >
+                <LatencySVG />
+              </button>
+            </div>
           </div>
-          <div className="flex-none ml-auto mr-1.5">
-          <button
-            className="btn btn-square btn-ghost tooltip tooltip-left"
-            data-tip="View Latency"
-            onClick={() => {
-              setShowLatencyModal(true);
-            }}
-          >
-            <LatencySVG />
-          </button>
-        </div>
-          </div>
-          
+
           <div className="-mb-4 flex flex-row">
             <Form
               action={
@@ -116,8 +121,6 @@ export default ({ setShowAddContactModal, setShowLatencyModal }: HeaderProps) =>
                 <ContactSVG />
               </button>
             </div>
-
-           
 
             <div className="flex-none">
               <Form
@@ -167,11 +170,24 @@ export default ({ setShowAddContactModal, setShowLatencyModal }: HeaderProps) =>
                     <button className="btn btn-primary">Change Region</button>
                   </li>
                 </Link>
-                {/* <Link to={AppPaths.PurgeData}>
+                {/* {/* <Link to={AppPaths.PurgeData}> */}
+                <fetcher.Form
+                  action={AppPaths.UserManagement}
+                  method="post"
+                  reloadDocument
+                >
                   <li>
-                    <button className="btn btn-primary">Purge Data</button>
+                    <button
+                      className="btn btn-primary"
+                      type="submit"
+                      name={FormButtonActions.Name}
+                      value={FormButtonActions.Purge}
+                    >
+                      Purge Data
+                    </button>
                   </li>
-                </Link> */}
+                {/* // </Link> */} 
+                </fetcher.Form>
                 <Link to={AppPaths.Logout} reloadDocument>
                   <li>
                     <button className="btn btn-primary">Logout</button>
