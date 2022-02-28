@@ -1,5 +1,11 @@
-import { useFetcher } from 'remix';
-import { ActionButtons, AppPaths, FormButtonActions, HttpMethods, MM_TOKEN_PREFIX } from "~/constants";
+import { useFetcher } from "remix";
+import {
+  ActionButtons,
+  AppPaths,
+  FormButtonActions,
+  HttpMethods,
+  MM_TOKEN_PREFIX,
+} from "~/constants";
 import { RowProps } from "~/interfaces";
 import { isMMToken, truncate } from "~/utilities/utils";
 
@@ -25,7 +31,7 @@ export default ({
     Company,
     Status,
     LeadSource: Source,
-    ConsentRequested
+    ConsentRequested,
   } = data;
   const isPrivate = isPrivateRegion === "true";
   const isPrivateRecord = !isMMToken(token);
@@ -50,6 +56,11 @@ export default ({
         setActiveRow("");
       }}
     >
+      <td>
+        <span data-tip={token} className="tooltip tooltip-bottom">
+          {truncate(token, 11)}
+        </span>
+      </td>
       <td>
         <span data-tip={firstName} className="tooltip tooltip-bottom">
           {truncate(firstName)}
@@ -118,48 +129,67 @@ export default ({
         </fetcher.Form>
       </td>
       <td className="flex">
-        <button
-          className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-blue-600 mr-2 ${
-            isButtonDisabled ? "btn-disabled" : ""
-          }`}
-          disabled={isButtonDisabled}
-          onClick={() => {
-            onActionButtonClicked(ActionButtons.Edit, data);
-          }}
-        >
-          {ActionButtons.Edit}
-        </button>
-        <button
-          className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-error mr-2 ${
-            isButtonDisabled ? "btn-disabled" : ""
-          }`}
-          disabled={isButtonDisabled}
-          onClick={() => {
-            onActionButtonClicked(ActionButtons.Remove, data);
-          }}
-        >
-          {ActionButtons.Remove}
-        </button>
-        <button
-          className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-green-600 mr-2 text-neutral ${
-            isButtonDisabled ? "btn-disabled" : ""
-          }`}
-          disabled={isButtonDisabled}
-          onClick={() => {
-            onActionButtonClicked(ActionButtons.Share, data);
-          }}
-        >
-          {ActionButtons.Share}
-        </button>
-        <button
-          className={showClass}
-          disabled={isButtonDisabled}
-          onClick={() => {
-            onActionButtonClicked(ActionButtons.Show, data);
-          }}
-        >
-          {ActionButtons.Show}
-        </button>
+        <div className="dropdown dropdown-left dropdown-end">
+          <label tabIndex={0} className="m-1 btn">
+            Click
+          </label>
+          <ul
+            tabIndex={0}
+            className="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52"
+          >
+            <li>
+              {" "}
+              <button
+                className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-blue-600 mr-2 ${
+                  isButtonDisabled ? "btn-disabled" : ""
+                }`}
+                disabled={isButtonDisabled}
+                onClick={() => {
+                  onActionButtonClicked(ActionButtons.Edit, data);
+                }}
+              >
+                {ActionButtons.Edit}
+              </button>
+            </li>
+            <li>
+              <button
+                className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-error mr-2 ${
+                  isButtonDisabled ? "btn-disabled" : ""
+                }`}
+                disabled={isButtonDisabled}
+                onClick={() => {
+                  onActionButtonClicked(ActionButtons.Remove, data);
+                }}
+              >
+                {ActionButtons.Remove}
+              </button>
+            </li>
+           <li>
+              <button
+                className={`flex-1 btn btn-ghost btn-sm text-center leading-7 text-green-600 mr-2 text-neutral ${
+                  isButtonDisabled ? "btn-disabled" : ""
+                }`}
+                disabled={isButtonDisabled}
+                onClick={() => {
+                  onActionButtonClicked(ActionButtons.Share, data);
+                }}
+              >
+                {ActionButtons.Share}
+              </button>
+            </li>
+            <li>
+              <button
+                className={showClass}
+                disabled={isButtonDisabled}
+                onClick={() => {
+                  onActionButtonClicked(ActionButtons.Show, data);
+                }}
+              >
+                {ActionButtons.Show}
+              </button>
+            </li>
+          </ul>
+        </div>
       </td>
     </tr>
   );

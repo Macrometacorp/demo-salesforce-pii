@@ -39,6 +39,7 @@ export enum ToastTypes {
 }
 
 export const HEADINGS = [
+  "token",
   "first name",
   "last name",
   "email",
