@@ -205,6 +205,8 @@ export default () => {
           toastMessage = "Bulk data uploaded successfully";
         } else if (isPageRefresh) {
           toastMessage = "Page refreshed successfully";
+        } else {
+          toastMessage = "Operation successful";
         }
       }
       

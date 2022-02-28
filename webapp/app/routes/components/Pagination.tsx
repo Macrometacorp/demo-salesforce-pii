@@ -16,7 +16,7 @@ export const Pagination = ({
   }
 
   return (
-    <div className="card items-center absolute left-0 right-0 bottom-20">
+    <div className="card items-center left-0 right-0">
       <div className="max-w-sm card-body">
         <p>
           Showing{" "}

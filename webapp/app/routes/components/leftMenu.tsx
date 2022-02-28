@@ -26,7 +26,7 @@ export default ({ setShowLatencyModal }: HeaderProps) => {
 
   return (
     <div
-      className={`h-32 flex-col justify-center ${showMenu ? "flex" : "hidden"}`}
+      className={`h-32 flex-col justify-end mb-3.5 ${showMenu ? "flex" : "hidden"}`}
     >
       <div className="flex flex-row mt-[49px]">
       <div className="flex-none">
@@ -34,6 +34,7 @@ export default ({ setShowLatencyModal }: HeaderProps) => {
           method={HttpMethods.Post}
           action={AppPaths.UserManagement}
           reloadDocument
+          className='h-2'
         >
           <button
             className={`btn btn-square btn-ghost tooltip`}
