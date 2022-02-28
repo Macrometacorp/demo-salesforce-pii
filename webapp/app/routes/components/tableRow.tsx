@@ -131,14 +131,19 @@ export default ({
       </td>
       <td className="flex">
         <div className="dropdown dropdown-left dropdown-end" ref={actionRef}>
-          <div tabIndex={0} className="m-1 btn btn-sm btn-primary">
+          <div
+            tabIndex={0}
+            className={`m-1 btn btn-sm ${
+              isButtonDisabled ? " btn-disabled" : "btn-primary"
+            }`}
+          >
             Actions
           </div>
           <ul
             tabIndex={0}
             className="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52"
           >
-            <li className='text-blue-600'>
+            <li className="text-blue-600">
               <button
                 className={`flex-1 btn btn-ghost btn-sm text-center leading-7  mr-2 ${
                   isButtonDisabled ? "btn-disabled" : ""
@@ -151,7 +156,7 @@ export default ({
                 {ActionButtons.Edit}
               </button>
             </li>
-            <li className='text-error'>
+            <li className="text-error">
               <button
                 className={`flex-1 btn btn-ghost btn-sm text-center leading-7 mr-2 ${
                   isButtonDisabled ? "btn-disabled" : ""
@@ -164,7 +169,7 @@ export default ({
                 {ActionButtons.Remove}
               </button>
             </li>
-            <li className='text-green-600'>
+            <li className="text-green-600">
               <button
                 className={`flex-1 btn btn-ghost btn-sm text-center leading-7 mr-2 text-neutral ${
                   isButtonDisabled ? "btn-disabled" : ""
@@ -178,7 +183,7 @@ export default ({
               </button>
             </li>
             {isPrivateRecord && (
-              <li className='text-neutral'>
+              <li className="text-neutral">
                 <button
                   className={showClass}
                   disabled={isButtonDisabled}
