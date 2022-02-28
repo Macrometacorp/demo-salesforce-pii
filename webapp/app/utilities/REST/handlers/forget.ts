@@ -18,7 +18,6 @@ export default async (
         response.text()
       );
       // error if expected format is not received
-      console.log(resText);
       const res = JSON.parse(resText);
       exptoken = res.exptoken;
     } else {
@@ -39,7 +38,7 @@ export default async (
     const locationRes = await c8ql(
       request,
       Fabrics.Global,
-      Queries.DeleteLocation(),
+      Queries.DeleteUserLeadInfo(),
       {
         token,
       },

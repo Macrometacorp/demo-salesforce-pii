@@ -125,7 +125,7 @@ export default ({
           </div>
           <div className="form-control">
             <label className="label font-semibold">
-              <span className="label-text">Number Of Employess</span>
+              <span className="label-text">Number Of Employees</span>
             </label>
             <input
               type="text"

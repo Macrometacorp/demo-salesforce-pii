@@ -1,4 +1,4 @@
-import { AppPaths, LatencyRequest } from "~/constants";
+import { AppPaths, LatencyRequest, SessionStorage } from "~/constants";
 import { LatencyInfo } from "~/interfaces";
 
 export class PerformanceMeasurement {
@@ -7,7 +7,9 @@ export class PerformanceMeasurement {
   private performances: Array<PerformanceResourceTiming>;
 
   constructor() {
-    this.performances = [];
+    this.performances = JSON.parse(
+      sessionStorage.getItem(SessionStorage.LatencyData) || "[]"
+    );;
     const observer = new PerformanceObserver((list) => {
       const perfs = list
         .getEntriesByType(LatencyRequest.Type)
@@ -22,6 +24,7 @@ export class PerformanceMeasurement {
     while (this.performances.length > PerformanceMeasurement.LIMIT) {
       this.performances.shift();
     }
+    sessionStorage.setItem(SessionStorage.LatencyData, JSON.stringify(this.performances));
   }
 
   getPerformances(): Array<LatencyInfo> {

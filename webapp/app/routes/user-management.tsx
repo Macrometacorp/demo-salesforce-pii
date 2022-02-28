@@ -47,16 +47,18 @@ import handleDelete from "../utilities/REST/handlers/delete";
 import handleUpload from "../utilities/REST/handlers/upload";
 import handleList from "../utilities/REST/handlers/list";
 import handleSearch from "../utilities/REST/handlers/search";
-import { refreshCache } from '../utilities/REST/salesforce';
+import { bulkLeadRecordUpdate, refreshCache } from '../utilities/REST/salesforce';
+import { updateConsentDetails } from '../utilities/REST/handlers/consent';
 
 export const action: ActionFunction = async ({
-  request,
+  request
 }): Promise<UserManagementActionResult> => {
   const form = await request.formData();
   const actionType =
-    form.get(FormButtonActions.Name)?.toString() ??
-    form.get(FormButtonActions.RefreshCache)?.toString() ??
-    "";
+  form.get(FormButtonActions.Name)?.toString() ??
+  form.get(FormButtonActions.RefreshCache)?.toString() ??
+  form.get(FormButtonActions.BulkUpload)?.toString() ??
+  "";
   let result;
   switch (actionType) {
     case FormButtonActions.Create:
@@ -72,7 +74,18 @@ export const action: ActionFunction = async ({
       result = await handleUpload(request, form);
       break;
     case FormButtonActions.RefreshCache:
-      result = await refreshCache() as any;
+      result = await refreshCache() as any
+      break;
+    case FormButtonActions.BulkUpload:
+      result = await bulkLeadRecordUpdate() as any;
+      break;
+    case FormButtonActions.RequestConsent:
+      result = updateConsentDetails(request, form) as any;
+      break;
+    case FormButtonActions.RefreshPage:
+      result = {
+        isPageRefresh: true
+      }
       break;
     default:
       result = {
@@ -81,7 +94,6 @@ export const action: ActionFunction = async ({
         errorMessage: "Unhandled form action",
       };
   }
-
   return result;
 };
 
@@ -92,11 +104,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   const {
     query: { email },
   } = queryString.parseUrl(request.url);
-
   let result;
   if (email) {
     result = await handleSearch(request, email.toString());
   } else {
+
     result = await handleList(request);
   }
   return result;
@@ -124,7 +136,7 @@ export default () => {
   const [activeRow, setActiveRow] = useState("");
   const [isPrivateRegion, setIsPrivateRegion] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
+ 
   const indexOfLastContact = currentPage * CONTACTS_PER_PAGE;
   const indexOfFirstContact = indexOfLastContact - CONTACTS_PER_PAGE;
   const currentContacts = userData.slice(
@@ -168,6 +180,8 @@ export default () => {
         isRefresh,
         errorMessage,
         name,
+        isBulkUpload,
+        isPageRefresh
       } = actionData;
       let toastType = error
         ? ToastTypes.Error
@@ -187,6 +201,10 @@ export default () => {
           toastMessage = "Your record is deleted and will reflect shortly";
         } else if (isRefresh) {
           toastMessage = "Cache updated successfully";
+        } else if (isBulkUpload) {
+          toastMessage = "Bulk data uploaded successfully";
+        } else if (isPageRefresh) {
+          toastMessage = "Page refreshed successfully";
         }
       }
       

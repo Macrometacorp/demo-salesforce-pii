@@ -1,5 +1,8 @@
 import { parse as parseCSV } from "papaparse";
-import { Form, Link, useSubmit } from "remix";
+import { Form, Link, useFetcher, useSubmit, useTransition } from "remix";
+import SalesForceSVG from "~/routes/components/svgs/salesforce";
+import LatencySVG from "~/routes/components/svgs/latency";
+
 import {
   AppPaths,
   FormButtonActions,
@@ -11,15 +14,17 @@ import { useEffect, useState } from "react";
 import ContactSVG from "../components/svgs/contact";
 import UploadSVG from "../components/svgs/upload";
 import { HeaderProps } from "~/interfaces";
+import ProgressModal from './modals/progressModal';
 
 const FILE_SELECTOR_ID = "file-selector";
 
-export default ({ setShowAddContactModal }: HeaderProps) => {
+export default ({ setShowAddContactModal, setShowLatencyModal }: HeaderProps) => {
   const [showMenu, setShowMenu] = useState(false);
   const submit = useSubmit();
   const [search, setSearch] = useState("");
   const [region, setRegion] = useState("");
   const [showPartialMenu, setShowPartialMenu] = useState(false);
+  const fetcher = useFetcher();
 
   useEffect(() => {
     const {
@@ -61,9 +66,23 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
         </div>
       ) : (
         <>
-          <div className="pb-2">
-            Region: <span className="badge ml-2">{region}</span>
+          <div className="flex flex-row">
+          <div className="flex-none">
+            <div className='p-2'>Region: <span className="badge ml-2">{region}</span></div>
           </div>
+          <div className="flex-none ml-auto mr-1.5">
+          <button
+            className="btn btn-square btn-ghost tooltip tooltip-left"
+            data-tip="View Latency"
+            onClick={() => {
+              setShowLatencyModal(true);
+            }}
+          >
+            <LatencySVG />
+          </button>
+        </div>
+          </div>
+          
           <div className="-mb-4 flex flex-row">
             <Form
               action={
@@ -97,6 +116,8 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
                 <ContactSVG />
               </button>
             </div>
+
+           
 
             <div className="flex-none">
               <Form
@@ -146,6 +167,11 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
                     <button className="btn btn-primary">Change Region</button>
                   </li>
                 </Link>
+                <Link to={AppPaths.PurgeData}>
+                  <li>
+                    <button className="btn btn-primary">Purge Data</button>
+                  </li>
+                </Link>
                 <Link to={AppPaths.Logout} reloadDocument>
                   <li>
                     <button className="btn btn-primary">Logout</button>
@@ -154,6 +180,7 @@ export default ({ setShowAddContactModal }: HeaderProps) => {
               </ul>
             </div>
           </div>
+          {fetcher.state === "submitting" && <ProgressModal />}
         </>
       )}
     </div>

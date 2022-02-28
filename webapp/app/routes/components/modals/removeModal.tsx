@@ -9,7 +9,7 @@ import { ModalProps } from "~/interfaces";
 import { getModalId } from "~/utilities/utils";
 
 export default ({ modalUserDetails, onModalClose }: ModalProps) => {
-  const { token, country } = modalUserDetails;
+  const { token, _key, Country } = modalUserDetails;
 
   return (
     <div id={getModalId(ModalPaths.RemoveModal)} className="modal modal-open">
@@ -21,7 +21,8 @@ export default ({ modalUserDetails, onModalClose }: ModalProps) => {
           reloadDocument
         >
           <input type="hidden" name="token" value={token} />
-          <input type="hidden" name="country" value={country} />
+          <input type="hidden" name="_key" value={_key} />
+          <input type="hidden" name="country" value={Country} />
           <div className="modal-action">
             <button
               className="btn btn-error"

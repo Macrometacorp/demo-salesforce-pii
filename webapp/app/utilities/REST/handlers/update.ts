@@ -1,5 +1,8 @@
+import { updateleadListHandler } from './../salesforce';
 import { Fabrics, Queries } from "~/constants";
+import { UserData } from "~/interfaces";
 import { isMMToken } from "~/utilities/utils";
+import { buildURL, fetchWrapper, getOptions } from "../apiCalls";
 import { c8ql } from "../mm";
 import { piiUpdateContact } from "../pii";
 
@@ -8,18 +11,34 @@ export default async (
   form: FormData,
   isApiKey: boolean = false
 ) => {
-  const name = form.get("name")?.toString();
-  const email = form.get("email")?.toString();
-  const phone = form.get("phone")?.toString();
-  const state = form.get("state")?.toString();
-  const country = form.get("country")?.toString();
-  const zipcode = form.get("zipcode")?.toString();
-  const job_title = form.get("job_title")?.toString();
-
+  const name =
+    `${form.get("firstName")?.toString()}:${form
+      .get("lastName")
+      ?.toString()}` ?? "";
+  const firstName = `${form.get("firstName")?.toString()}` ?? "";
+  const lastname = `${form.get("lastName")?.toString()}` ?? "";
+  const Company = form.get("company")?.toString() ?? "";
+  const Status = form.get("leadStatus")?.toString() ?? "";
+  const phone = form.get("phone")?.toString() ?? "";
+  const Title = form.get("title")?.toString() ?? "";
+  const NumberOfEmployees = form.get("noOfEmployees")?.toString() ?? "";
+  const Website = form.get("website")?.toString() ?? "";
+  const LeadSource = form.get("leadSource")?.toString() ?? "";
+  const Industry = form.get("industry")?.toString() ?? "";
+  const email = form.get("email")?.toString() ?? "";
+  const Rating = form.get("rating")?.toString() ?? "";
+  const Street = form.get("street")?.toString() ?? "";
+  const City = form.get("city")?.toString() ?? "";
+  const State = form.get("state")?.toString() ?? "";
+  const Country = form.get("country")?.toString() ?? "";
+  const PostalCode = form.get("zipcode")?.toString() ?? "";
   const token = form.get("token")?.toString() || "";
-
+  const Id = form.get("Id")?.toString() || "";
+  const IsUnreadByOwner = form.get("IsUnreadByOwner")?.toString() || "";
+  const isUploaded = form.get("isUploaded")?.toString() === "true";
+  const isEditable = true;
   const isPrivate = !isMMToken(token);
-
+  const _key = form.get("_key")?.toString() ?? "";
   try {
     if (isPrivate) {
       const resText = await piiUpdateContact(token, name, email, phone).then(
@@ -28,14 +47,15 @@ export default async (
       // error if expected format is not received
       JSON.parse(resText);
     } else {
-      // "{ name: @name, email: @email, phone: @phone }"
+
       const whatToUpsert = [];
+      name && whatToUpsert.push("firstName: @firstName");
+      name && whatToUpsert.push("lastname: @lastname");
       name && whatToUpsert.push("name: @name");
       email && whatToUpsert.push("email: @email");
       phone && whatToUpsert.push("phone: @phone");
 
       if (whatToUpsert.length) {
-        // user details really need to be updated
         const upsertStr = whatToUpsert.length ? whatToUpsert.join(",") : "";
 
         const res = await c8ql(
@@ -45,10 +65,12 @@ export default async (
           {
             token,
             name,
+            firstName,
+            lastname,
             email,
             phone,
           },
-          isApiKey
+          true
         );
         const jsonRes = await res.json();
         if (jsonRes?.error) {
@@ -57,39 +79,37 @@ export default async (
       }
     }
 
-    // "{ state: @state, country: @country, zipcode: @zipcode, job_title: @job_title }"
-    const whatLocationDetailsToUpsert = [];
-    state && whatLocationDetailsToUpsert.push("state: @state");
-    country && whatLocationDetailsToUpsert.push("country: @country");
-    zipcode && whatLocationDetailsToUpsert.push("zipcode: @zipcode");
-    job_title && whatLocationDetailsToUpsert.push("job_title: @job_title");
-
-    if (whatLocationDetailsToUpsert.length) {
-      // location really needs to change
-      const locationUpsertStr = whatLocationDetailsToUpsert.length
-        ? whatLocationDetailsToUpsert.join(",")
-        : "";
-      const locationRes = await c8ql(
-        request,
-        Fabrics.Global,
-        Queries.UpdateLocation(locationUpsertStr),
-        {
-          token,
-          state,
-          country,
-          zipcode,
-          job_title,
-        },
-        isApiKey
-      );
-      const locationJsonRes = await locationRes.json();
-      if (locationJsonRes?.error) {
-        throw new Error(JSON.stringify(locationJsonRes));
+    const userLeadInfoData = 
+      {
+        _key,
+        value: [
+          {
+            Id,
+            IsUnreadByOwner,
+            isUploaded,
+            State,
+            Country,
+            Company,
+            Status,
+            PostalCode,
+            Title,
+            NumberOfEmployees,
+            Website,
+            LeadSource,
+            Industry,
+            Rating,
+            Street,
+            City,
+            isEditable,
+            token,
+          },
+        ],
       }
-    }
 
+const updateSalesforceLeadData = await updateleadListHandler(request,Id,userLeadInfoData);
     return { isPrivate, isUpdated: true };
   } catch (error: any) {
+    console.error(error);
     return {
       error: true,
       errorMessage: error?.message || error?.errorMessage,

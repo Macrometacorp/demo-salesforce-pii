@@ -1,5 +1,5 @@
 import { ModalPaths, SHAREABLE_CURL_COMMAND_MESSAGE } from "~/constants";
-import { getModalId } from "~/utilities/utils";
+import { getModalId, isMMToken } from "~/utilities/utils";
 import { useEffect, useState } from "react";
 import { ModalProps, UserData } from "~/interfaces";
 
@@ -13,6 +13,10 @@ export default ({ modalUserDetails, onModalClose }: ModalProps) => {
 
   const decryptToken = async () => {
     try {
+      if(isMMToken(modalUserDetails.token)){
+        setDecryptData(modalUserDetails);
+        return;
+      }
       const result = await fetch(`/decrypt?token=${modalUserDetails.token}`);
       const decryptResult = await result.text();
       const parsedDecryptedResult = JSON.parse(decryptResult);

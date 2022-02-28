@@ -2,6 +2,7 @@ import { Fabrics, Queries } from "~/constants";
 import { isMMToken } from "~/utilities/utils";
 import { c8ql } from "../mm";
 import { piiDeleteUser } from "../pii";
+import { deleteleadListHandler, getCachedData } from "../salesforce";
 
 export default async (
   request: Request,
@@ -9,6 +10,7 @@ export default async (
   isApiKey: boolean = false
 ) => {
   const token = form.get("token")?.toString() ?? "";
+  const _key = form.get("_key")?.toString() ?? "";
 
   const isPrivate = !isMMToken(token);
   try {
@@ -32,18 +34,32 @@ export default async (
         throw new Error(JSON.stringify(userRes));
       }
     }
-
+    const leadInfoData = await getCachedData();
+    const id =leadInfoData.filter((element:any)=>element.token==token)
+    const res = await deleteleadListHandler(id[0].Id);
     const locationRes = await c8ql(
       request,
       Fabrics.Global,
-      Queries.DeleteLocation(),
+      Queries.DeleteUserLeadInfo(),
       {
-        token,
+        token: _key,
       },
       isApiKey
     ).then((request) => request.json());
     if (locationRes?.error) {
       throw new Error(JSON.stringify(locationRes));
+    }
+    const consentData = await c8ql(
+      request,
+      Fabrics.Global,
+      Queries.DeleteConsentInfo(),
+      {
+        token,
+      },
+      isApiKey
+    ).then((request) => request.json());
+    if (consentData?.error) {
+      throw new Error(JSON.stringify(consentData));
     }
     return { isPrivate, isDeleted: true };
   } catch (error: any) {

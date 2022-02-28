@@ -22,21 +22,70 @@ export interface PiiData {
   name: string;
   phone: string;
   token: string;
+  firstName: string;
+  lastname: string;
 }
 
 export interface LocationData {
-  token: string;
-  state: string;
-  country: string;
-  zipcode: string;
-  job_title: string;
+
+    _id: string;
+    _key: string;
+    _rev: string;
+    expireAt: number,
+    value: Array<LeadInfo>
+
 }
 
-export interface UserData extends PiiData, LocationData {}
+export interface LeadInfo {
+  Id ?: string;
+  IsUnreadByOwner ?: string;
+  token: string;
+  Company: string;
+  Status: string;
+  Title: string;
+  NumberOfEmployees: string;
+  Website:string;
+  LeadSource: string;
+  Industry: string;
+  Rating: string;
+  Street: string;
+  City: string;
+  State: string;
+  Country: string;
+  PostalCode: string;
+  isUploaded: string;
+}
 
+export interface UserConsent {
+  _key : string;
+  ConsentRequested ?: boolean;
+}
+
+export interface UserData extends PiiData, LocationData, LeadInfo, UserConsent  {}
+export interface CsvUserData {
+  company: string;
+  status: string;
+  title: string;
+  numberOfEmployees: string;
+  website:string;
+  leadSource: string;
+  industry: string;
+  rating: string;
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  email: string;
+  name: string;
+  phone: string;
+  token: string;
+  firstname: string;
+  lastname: string;
+}
 export interface RowProps {
   activeRow: string;
-  data: PiiData & LocationData;
+  data: PiiData & LocationData & LeadInfo & UserConsent;
   isPrivateRegion: string;
   setActiveRow: (arg: string) => void;
   onActionButtonClicked: (action: ActionButtons, details: UserData) => void;
@@ -100,3 +149,10 @@ export interface LatencyInfo {
   Method: string;
   Size: string;
 }
+
+export type ConsentModalProps = {
+  showModal: boolean;
+  token : string;
+  formAction?: string;
+  onModalClose: () => void;
+};
