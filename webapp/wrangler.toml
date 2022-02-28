@@ -3,7 +3,7 @@ type = "javascript"
 
 zone_id = "44ccec372ad2478131dc3fd7bf51a6c2"
 account_id = "b3dad22670b88424da9afddc967218a2"
-route = "sf.macrometa.io/*"
+route = "sf-pii.macrometa.io/*"
 workers_dev = false
 
 [vars]
