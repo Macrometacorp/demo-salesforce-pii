@@ -32,6 +32,7 @@ class MMCache {
   static get jobUrl(): string {
     return `${SALESFORCE_INSTANCE_URL}${SALESFORCE_INSTANCE_SUB_URL}${SALESFORCE_JOB_INGEST}`;
   }
+
 }
 
 export const getAccessToken = async () => {
@@ -93,7 +94,6 @@ export const getCachedContent = async () => {
 
     return { keys: keysResult, cachedContent: cachedSavedData };
   } catch (error: any) {
-    console.log("error", error);
     return {
       error: true,
       errorMessage:
@@ -316,7 +316,6 @@ export const updateleadListHandler = async (
       City: data.value[0].City,
     });
 
-    console.log("toBeUpdatedSalesforceLeadData", toBeUpdatedSalesforceLeadData);
     const accessToken = await getAccessToken();
     const getUrl = buildURL(
       SALESFORCE_INSTANCE_URL,
@@ -385,7 +384,6 @@ export const refreshCache = async (keysData = [], cachedContentData = []) => {
     }
     return { isRefresh: true };
   } catch (error: any) {
-    console.log("er", error);
     return {
       error: true,
       errorMessage:
@@ -404,9 +402,7 @@ export const bulkLeadRecordDelete = async () => {
 
 
     for (const data of cachedContent) {
-      console.log("Adadada",data) 
       cachedSavedData.push({"Id":data.Id});
-      console.log("Adadada",cachedSavedData)
     } //end of for
     const token = await getAccessToken();
      const csv = Papa.unparse(cachedSavedData);
@@ -421,7 +417,7 @@ export const bulkLeadRecordDelete = async () => {
     let uploadBulkApi;
     try {
       const methodOptions = getOptions(
-        { method: "DELETE", body: csv },
+        { method: "PUT", body: csv },
         token,
         "text/csv"
       );
@@ -430,6 +426,7 @@ export const bulkLeadRecordDelete = async () => {
     } catch (error) {
       console.error("the errors", error);
     }
+    finally{
     if (uploadBulkApi.statusCode === 201) {
       const methodOptions = getOptions(
         { method: "PATCH", body: JSON.stringify({ state: "UploadComplete" }) },
@@ -438,15 +435,20 @@ export const bulkLeadRecordDelete = async () => {
       const getUrl = buildURL(MMCache.jobUrl, jobId);
       const closeJob = await fetchWrapper(getUrl, methodOptions);
       console.log("closeJob", closeJob);
-      await refreshCache(keys, cachedContent);
       return new Response(
-        JSON.stringify({ message: "Data Uploaded" }),
+        JSON.stringify({ message: "Data Purged" }),
         optionsObj
       );
     }
-    return { isBulkUpload: true };
-  } catch (err) {
-    throw err;
-    // return new Response("No data to upload");
+    else{
+      return new Response(
+        JSON.stringify({ message: "Job yet not completed." }),
+        optionsObj
+      );
+    }
+  }
+  
+  } catch (error:any) {
+  throw error
   }
 };

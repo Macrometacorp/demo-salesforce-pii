@@ -189,10 +189,11 @@ export default () => {
         errorMessage,
         name,
         isBulkUpload,
-        isPageRefresh
+        isPageRefresh,
+        isPurged
       } = actionData;
       let toastType = error
-        ? ToastTypes.Error
+        ? ToastTypes.Error 
         : isPrivate
         ? ToastTypes.Info
         : ToastTypes.Success;
@@ -213,7 +214,13 @@ export default () => {
           toastMessage = "Bulk data uploaded successfully";
         } else if (isPageRefresh) {
           toastMessage = "Page refreshed successfully";
-        } else {
+        }else if (isPurged) {
+          toastMessage = "Data Purged Successfully";
+        }
+        else if (!isPurged) {
+          toastMessage = "Data Purged Operation unsuccessful";
+        }
+         else {
           toastMessage = "Operation successful";
         }
       }

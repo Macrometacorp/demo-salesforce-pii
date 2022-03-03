@@ -1,13 +1,10 @@
-import { parse as parseCSV } from "papaparse";
-import { Form, Link, useFetcher, useSubmit, useTransition } from "remix";
-import SalesForceSVG from "~/routes/components/svgs/salesforce";
+import { Form, Link, useFetcher, useSubmit } from "remix";
 import LatencySVG from "~/routes/components/svgs/latency";
 
 import {
   AppPaths,
   FormButtonActions,
   HttpMethods,
-  ModalPaths,
   SessionStorage,
 } from "~/constants";
 import { useEffect, useState } from "react";
@@ -170,11 +167,9 @@ export default ({
                     <button className="btn btn-primary">Change Region</button>
                   </li>
                 </Link>
-                {/* {/* <Link to={AppPaths.PurgeData}> */}
                 <fetcher.Form
                   action={AppPaths.UserManagement}
                   method="post"
-                  reloadDocument
                 >
                   <li>
                     <button
@@ -186,7 +181,6 @@ export default ({
                       Purge Data
                     </button>
                   </li>
-                {/* // </Link> */} 
                 </fetcher.Form>
                 <Link to={AppPaths.Logout} reloadDocument>
                   <li>
