@@ -5,6 +5,7 @@ import Papa from "papaparse";
 import {
   Collections,
   createJobBody,
+  deleteJobBody,
   Fabrics,
   optionsObj,
   Queries,
@@ -31,6 +32,7 @@ class MMCache {
   static get jobUrl(): string {
     return `${SALESFORCE_INSTANCE_URL}${SALESFORCE_INSTANCE_SUB_URL}${SALESFORCE_JOB_INGEST}`;
   }
+
 }
 
 export const getAccessToken = async () => {
@@ -68,6 +70,7 @@ export const executeQuery = async (queryString: string, bindVars: any) => {
   const queryResult = await result.json();
   return queryResult;
 };
+
 export const getCachedData = async () => {
   const keys = await MMCache.Instance.allKeys();
   const cachedSavedData: any = [];
@@ -91,7 +94,6 @@ export const getCachedContent = async () => {
 
     return { keys: keysResult, cachedContent: cachedSavedData };
   } catch (error: any) {
-    console.log("error", error);
     return {
       error: true,
       errorMessage:
@@ -112,7 +114,6 @@ export const bulkLeadRecordUpdate = async () => {
     );
 
     for (const data of cachedContent) {
-      console.log("data-------", data);
       delete data["isEditable"];
       if (!data["isUploaded"]) {
         delete data["isUploaded"];
@@ -315,7 +316,6 @@ export const updateleadListHandler = async (
       City: data.value[0].City,
     });
 
-    console.log("toBeUpdatedSalesforceLeadData", toBeUpdatedSalesforceLeadData);
     const accessToken = await getAccessToken();
     const getUrl = buildURL(
       SALESFORCE_INSTANCE_URL,
@@ -384,12 +384,71 @@ export const refreshCache = async (keysData = [], cachedContentData = []) => {
     }
     return { isRefresh: true };
   } catch (error: any) {
-    console.log("er", error);
     return {
       error: true,
       errorMessage:
         error?.message || "Something went wrong while updating cache",
       name: error?.name || "Error",
     };
+  }
+};
+
+
+export const bulkLeadRecordDelete = async () => {
+  try {
+    const cachedSavedData: any = [];
+    const { keys, cachedContent } = await getCachedContent();
+
+
+
+    for (const data of cachedContent) {
+      cachedSavedData.push({"Id":data.Id});
+    } //end of for
+    const token = await getAccessToken();
+     const csv = Papa.unparse(cachedSavedData);
+    const methodOptions = getOptions(
+      { method: "POST", body: deleteJobBody },
+      token
+    );
+    const createJobResult = await fetchWrapper(MMCache.jobUrl, methodOptions);
+    console.log("createJobResult",createJobResult)
+    const jobId = createJobResult.id;
+    console.log("jobID", jobId);
+    let uploadBulkApi;
+    try {
+      const methodOptions = getOptions(
+        { method: "PUT", body: csv },
+        token,
+        "text/csv"
+      );
+      const getUrl = buildURL(MMCache.jobUrl, `${jobId}/batches`);
+      uploadBulkApi = await fetchWrapper(getUrl, methodOptions, true);
+    } catch (error) {
+      console.error("the errors", error);
+    }
+    finally{
+    if (uploadBulkApi.statusCode === 201) {
+      const methodOptions = getOptions(
+        { method: "PATCH", body: JSON.stringify({ state: "UploadComplete" }) },
+        token
+      );
+      const getUrl = buildURL(MMCache.jobUrl, jobId);
+      const closeJob = await fetchWrapper(getUrl, methodOptions);
+      console.log("closeJob", closeJob);
+      return new Response(
+        JSON.stringify({ message: "Data Purged" }),
+        optionsObj
+      );
+    }
+    else{
+      return new Response(
+        JSON.stringify({ message: "Job yet not completed." }),
+        optionsObj
+      );
+    }
+  }
+  
+  } catch (error:any) {
+  throw error
   }
 };

@@ -119,7 +119,7 @@ export default ({
               type="text"
               name="title"
               required
-              placeholder="Mr"
+              placeholder="DEV"
               className="input input-primary input-bordered"
             />
           </div>

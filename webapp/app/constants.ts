@@ -7,7 +7,7 @@ export enum Session {
 export enum SessionStorage {
   IsPrivateRegion = "isPrivateRegion",
   Region = "region",
-  LatencyData = "latencyData"
+  LatencyData = "latencyData",
 }
 
 export enum AppPaths {
@@ -18,7 +18,7 @@ export enum AppPaths {
   PurgeData = "/purge",
   Logout = "/logout",
   UserLogin = "/user-login",
-  UserDetails = "/user-details"
+  UserDetails = "/user-details",
 }
 
 export enum ModalPaths {
@@ -54,7 +54,7 @@ export const HEADINGS = [
 
 export enum ResourceEndpoints {
   Edit = "/edit",
-  Forget = "/forget"
+  Forget = "/forget",
 }
 
 export enum Fabrics {
@@ -63,9 +63,13 @@ export enum Fabrics {
 }
 
 export enum Collections {
+  // pii_global_sf fabric
   Users = "users",
   UserLeadInfo = "user_lead_info",
-  UserConsentData = "user_consent_data"
+  UserConsentData = "user_consent_data",
+
+  // pii_eu_sf fabric
+  PiiUsers = "pii_users",
 }
 
 export const MM_TOKEN_PREFIX = "mm_";
@@ -101,9 +105,9 @@ export const Queries = {
 
   SearchUserByToken: () =>
     `FOR user IN ${Collections.Users} FILTER user._key == @token RETURN user`,
-  
+
   SearchConsentByToken: () =>
-  `FOR user IN ${Collections.UserConsentData} FILTER user._key == @token RETURN user`,
+    `FOR user IN ${Collections.UserConsentData} FILTER user._key == @token RETURN user`,
 
   SearchLocationByToken: () =>
     `FOR doc in ${Collections.UserLeadInfo} 
@@ -138,9 +142,9 @@ export const Queries = {
 
   DeleteUserLeadInfo: () =>
     `REMOVE { _key: @token } IN ${Collections.UserLeadInfo}`,
-  
+
   DeleteConsentInfo: () =>
-  `REMOVE { _key: @token } IN ${Collections.UserConsentData}`,
+    `REMOVE { _key: @token } IN ${Collections.UserConsentData}`,
 
   SalesforceLeadQuery: () =>
     "Select id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees,description from lead",
@@ -149,8 +153,17 @@ export const Queries = {
     `UPSERT {_key:@token}
     INSERT { _key: @token, ConsentRequested: @ConsentRequested }
     UPDATE {ConsentRequested:@ConsentRequested} IN ${Collections.UserConsentData}`,
-};
 
+  TruncateGlobalCollections: () =>
+    `let a = (FOR user IN ${Collections.Users} REMOVE user IN ${Collections.Users})
+     let b = (FOR lead IN ${Collections.UserLeadInfo} REMOVE lead IN ${Collections.UserLeadInfo})
+     let c = (FOR consent IN ${Collections.UserConsentData} REMOVE consent IN ${Collections.UserConsentData})
+     return {a,b,c}
+  `,
+
+  TruncateEuCollections: () =>
+    `FOR user IN ${Collections.PiiUsers} REMOVE user IN ${Collections.PiiUsers}`,
+};
 
 export const optionsObj = {
   headers: {
@@ -162,9 +175,15 @@ export const createJobBody = JSON.stringify({
   object: "Lead",
   operation: "insert",
   contentType: "CSV",
-  lineEnding : "CRLF"
+  lineEnding: "CRLF",
 });
 
+export const deleteJobBody = JSON.stringify({
+  object: "Lead",
+  operation: "hardDelete",
+  contentType: "CSV",
+  lineEnding: "CRLF",
+});
 
 export enum ActionButtons {
   Edit = "EDIT",
@@ -191,7 +210,8 @@ export enum FormButtonActions {
   RefreshPage = "refreshPage",
   RequestConsent = "requestConsent",
   AllowConsent = "allowConsent",
-  RejectConsent = "rejectConsent"
+  RejectConsent = "rejectConsent",
+  Purge = "purge",
 }
 
 export const LATENCY_HEADINGS = ["path", "status", "method", "size", "time"];

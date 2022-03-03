@@ -14,6 +14,7 @@ TWILIO_ACCOUNT_SID="ACcc4ff71cb9aac0cf386912192bcf0a5f"
 TWILIO_AUTH_TOKEN="xxxx"
 TWILIO_MESSAGE_ENDPOINT="https://api.twilio.com/2010-04-01/Accounts/"
 TWILIO_NUMBER="+19378822331"
+# MM_API_KEY needs access to both "pii_eu_sf" and "pii_global_sf" fabrics
 MM_API_KEY="xxxx"
 SALESFORCE_INSTANCE_URL = "https://macrometa-dev-ed.my.salesforce.com"
 SALESFORCE_INSTANCE_SUB_URL = "/services/data/v51.0"

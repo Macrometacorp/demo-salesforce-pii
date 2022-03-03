@@ -49,6 +49,7 @@ import handleList from "../utilities/REST/handlers/list";
 import handleSearch from "../utilities/REST/handlers/search";
 import { bulkLeadRecordUpdate, refreshCache } from '../utilities/REST/salesforce';
 import { updateConsentDetails } from '../utilities/REST/handlers/consent';
+import handlePurge from "../utilities/REST/handlers/purge";
 
 export const action: ActionFunction = async ({
   request
@@ -85,6 +86,9 @@ export const action: ActionFunction = async ({
       result = {
         isConsent: true
       }
+      break;
+    case FormButtonActions.Purge:
+      result = await handlePurge(request);
       break;
     case FormButtonActions.RefreshPage:
       result = {
@@ -185,10 +189,11 @@ export default () => {
         errorMessage,
         name,
         isBulkUpload,
-        isPageRefresh
+        isPageRefresh,
+        isPurged
       } = actionData;
       let toastType = error
-        ? ToastTypes.Error
+        ? ToastTypes.Error 
         : isPrivate
         ? ToastTypes.Info
         : ToastTypes.Success;
@@ -209,7 +214,13 @@ export default () => {
           toastMessage = "Bulk data uploaded successfully";
         } else if (isPageRefresh) {
           toastMessage = "Page refreshed successfully";
-        } else {
+        }else if (isPurged) {
+          toastMessage = "Data Purged Successfully";
+        }
+        else if (!isPurged) {
+          toastMessage = "Data Purged Operation unsuccessful";
+        }
+         else {
           toastMessage = "Operation successful";
         }
       }
