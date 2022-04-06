@@ -60,13 +60,6 @@ export default async (request: Request, form: FormData) => {
         phone,
       });
     }
-    // await c8ql(request, Fabrics.Global, Queries.InsertLocation(), {
-    //   token,
-    //   state,
-    //   country,
-    //   zipcode,
-    //   title,
-    // });
     await saveLeadDatahandler(
       {
         token,

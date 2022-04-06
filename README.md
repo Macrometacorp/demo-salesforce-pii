@@ -2,7 +2,7 @@
 
 ### Live Demo: https://sf-pii.macrometa.io/
 
-Macrometa Salesforce PII Demo app is a fullstack admin/user portal that showcases the edge caching and data privacy capabilities of GDN for Salesforce. Two fabrics are created on the GDN platform. The first fabric is deployed in the European region (datacenters are located in Europe) and the second fabric is deployed globally (all datacenters including European region). When a user is added via the UI and the user is from a European country, his contact information is encrypted by the privacy service and stored in the European fabric. Then, with the help of a stream worker, these encrypted fields are pseudo-anonymized and added to a collection in the global fabric. The admin can perform CRUD operations on this record. The admin can use the "shared" command to send a curl command to the user which allows him to see the the details of his records (unencrypted).
+Macrometa Salesforce PII Demo app is a fullstack admin/user portal that showcases the edge caching and data privacy capabilities of GDN for Salesforce. Two fabrics are created on the GDN platform. The first fabric is deployed in the European region (datacenters are located in Europe) and the second fabric is deployed globally (all datacenters including European region). When a user is added via the UI and the user is from a European country, his contact information is encrypted by the privacy service and stored in the European fabric. Then, with the help of a stream worker, these encrypted fields are pseudo-anonymized and added to a collection in the global fabric. The admin can perform CRUD operations on this record. The admin can use the "shared" command to send a curl command to the user which allows him to see the the details of his records (unencrypted).The admin can then do the bulk upload to load the data to salesforce lead section. 
 
 ![alt text](./screenshot.png)
 ## Setup
@@ -20,7 +20,7 @@ Macrometa Salesforce PII Demo app is a fullstack admin/user portal that showcase
 **Dashboard:**
 
 The dashboard is built using Remix which is a full stack web framework that lets you focus on the user interface and work back through web fundamentals to deliver a fast, slick, and resilient user experience that deploys to any Node. js server and even non-Node. js environments at the edge like Cloudflare Workers.
-The dashboard consists of admin workflow the user workflow. In the admin flow the user logins in as an admin . The admin is able to select a region from the list of available GDN regions. If the admin selects an eu region he is able to see all the pseudo-anonymized data as well as the data added to the non-eu region. Also in the eu region you are able to Share (if the data is encrypted and anonymized, curl command is provided that can be shared via text message or copied to clipboard), Edit, Delete, and Decrypt (if the record is encrypted and anonymized) the record.
+The dashboard consists of admin workflow the user workflow. In the admin flow the user logins in as an admin . The admin is able to select a region from the list of available GDN regions. If the admin selects an eu region he is able to see all the pseudo-anonymized data as well as the data added to the non-eu region. Also in the eu region you are able to Share (if the data is encrypted and anonymized, curl command is provided that can be shared via text message or copied to clipboard), Edit, Delete, and Decrypt (if the record is encrypted and anonymized) the record.The admin can then do a bulk upload of lead data to the salesforce.
 The user flow is where a user logs in using his decrypted email address and sees his details and is able to share (if encrypted and anonymized), edit and forget.
 
 **Admin Screen**
@@ -37,8 +37,8 @@ The user flow is where a user logs in using his decrypted email address and sees
 
     Refer to the following links to add content for each Stream worker:
 
-    * **[DataAnonymizer](stream-apps/DataAnonymizer.md)**
-    * **[DataAnonymizerUpdate](stream-apps/DataAnonymizerUpdate.md)**
+    * **[DataAnonymizerSalesforce](stream-apps/DataAnonymizerSalesforce.md)**
+    * **[DataAnonymizerSalesforceUpdate](stream-apps/DataAnonymizerSalesforceUpdate.md)**
 
 2. Create the following Queries  in your federation:
 
@@ -48,34 +48,40 @@ The user flow is where a user logs in using his decrypted email address and sees
     FOR doc IN users RETURN doc,
     ```
 
-    **GetLocations**
+    **GetUserLeadInfo**
 
     ```js
-    FOR doc in user_locations RETURN doc
+    FOR doc in user_lead_info RETURN doc
+    ```
+
+    **GetUserConsents**
+
+    ```js
+    FOR doc in user_consent_data RETURN doc
     ```
 
     **InsertUser**
 
     ```js
-    INSERT { _key: @token, token: @token, name: @name, email: @email, phone: @phone } INTO users
+    INSERT { _key: @token, token: @token, name: @name, email: @email, phone: @phone,firstName:@firstName, lastname:@lastname } INTO users
     ```
 
     **UpdateUser**
 
     ```js
-    FOR user IN users UPDATE { _key: @token, ${updateWhat} } IN users
+   FOR user IN users UPDATE { _key: @token, ${updateWhat} } IN users
     ```
 
     **InsertLocation**
 
     ```js
-    INSERT { _key: @token, token: @token, state: @state, country: @country, zipcode: @zipcode, job_title: @job_title } INTO user_locations
+      INSERT { _key: @token, token: @token, state: @state, country: @country, zipcode: @zipcode, job_title: @job_title } INTO user_lead_info
     ```
 
-    **UpdateLocation**
+    **UpdateUserLeadInfo**
 
     ```js
-    FOR loc in user_locations UPDATE { _key: @token, ${updateWhat} } IN user_locations
+    UPDATE @_key with {"value": @value } IN user_lead_info
     ```
 
     **SearchUserByEmail**
@@ -84,16 +90,41 @@ The user flow is where a user logs in using his decrypted email address and sees
     FOR user IN users FILTER user.email == @email RETURN user
     ```
 
-    **SearchUserByToken**
+    **SearchConsentByToken**
 
     ```js
-    FOR user IN users FILTER user._key == @token RETURN user
+    FOR user IN user_consent_data FILTER user._key == @token RETURN user
     ```
 
     **SearchLocationByToken**
 
     ```js
-    FOR location IN user_locations FILTER location.token == @token RETURN location
+    FOR doc in user_lead_info 
+    filter doc.value[*].token ANY == @token
+    RETURN {
+      "Id": doc.value[0].Id,
+      "Name": doc.value[0].Name,
+      "FirstName": doc.value[0].FirstName,
+      "LastName": doc.value[0].LastName,
+      "Title": doc.value[0].Title,
+      "Company": doc.value[0].Company,
+      "Street": doc.value[0].Street,
+      "City": doc.value[0].City,
+      "State": doc.value[0].State,
+      "PostalCode": doc.value[0].PostalCode,
+      "Country": doc.value[0].Country,
+      "Phone": doc.value[0].Phone,
+      "Email": doc.value[0].Email,
+      "Website": doc.value[0].Website,
+      "LeadSource": doc.value[0].LeadSource,
+      "Status": doc.value[0].Status,
+      "Industry": doc.value[0].Industry,
+      "Rating": doc.value[0].Rating,
+      "IsUnreadByOwner": doc.value[0].IsUnreadByOwner,
+      "NumberOfEmployees": doc.value[0].NumberOfEmployees,
+      "token": doc.value[0].token,
+      "isUploaded": doc.value[0].isUploaded,
+      "_key": doc._key
     ```
 
     **DeleteUser**
@@ -105,21 +136,57 @@ The user flow is where a user logs in using his decrypted email address and sees
     **DeleteUserLeadInfo**
 
     ```js
-    REMOVE { _key: @token } IN user_locations
+    REMOVE { _key: @token } IN user_lead_info
+    ```
+
+    **DeleteConsentInfo**
+
+    ```js
+    REMOVE { _key: @token } IN user_consent_data
+    ```
+
+    **SalesforceLeadQuery**
+
+    ```js
+    SELECT id,salutation,name,firstname,lastname,title,company,street,city,state,postalCode,country,phone,email,website,leadsource,status,industry,rating,IsUnreadByOwner,NumberOfEmployees,description FROM lead
+    ```
+
+    **InsertUserConsent**
+
+    ```js
+    UPSERT {_key:@token}
+    INSERT { _key: @token, ConsentRequested: @ConsentRequested }
+    UPDATE {ConsentRequested:@ConsentRequested} IN user_consent_data
+    ```
+
+    **TruncateGlobalCollections**
+
+    ```js
+    let a = (FOR user IN users REMOVE user IN users)
+     let b = (FOR lead IN user_lead_info REMOVE lead IN user_lead_info)
+     let c = (FOR consent IN user_consent_data REMOVE consent IN user_consent_data)
+     return {a,b,c}
+    ```
+
+     **TruncateEuCollections**
+
+    ```js
+    FOR user IN pii_users REMOVE user IN pii_users
     ```
 
 3. Create the following collections in your federation:
 
-    | **Collection**     | **Fabric**                           |     **UserCreated**   |
-    | ----------------   | ------------------------------------ |-----------------------|
-    | users              |  `pii_global`                        |     YES               |
-    | user_locations     |  `pii_global`                        |     YES               |
+    | **Collection**     | **Fabric**                              |     **UserCreated**   |
+    | ----------------   | ------------------------------------    |-----------------------|
+    | users              |  `pii_global_sf`                        |     YES               |
+    | user_lead_info     |  `pii_global_sf`                        |     YES               |
+    | user_consent_data  |  `pii_global_sf`                        |     YES               |
 
 4. On the development machine, run the following commands in a console:
 
     ```
-    1. git clone git@github.com:Macrometacorp/demo-pii
-    2. cd demo-pii
+    1. git clone git@github.com:Macrometacorp/demo-salesforce-pii
+    2. cd demo-salesforce-pii
     3. git fetch
     4. npm install
     5. npm run dev (to start the UI)
@@ -131,8 +198,8 @@ The user flow is where a user logs in using his decrypted email address and sees
 ## Privacy Service Setup
 
 ```
-In the demo-pii repo
-1. cd demo-pii/privacyservice
+In the demo-salesforce-pii repo
+1. cd demo-salesforce-pii/privacyservice
 2. Change the following three variables in the initdb.sh file:
    a. MMURL=<GDN REST API url to the European fabric>
    b. MMAPIKEY=<The GDN API KEY>
@@ -198,6 +265,14 @@ TWILIO_AUTH_TOKEN=xxxx
 TWILIO_MESSAGE_ENDPOINT=xxxx
 TWILIO_NUMBER=xxxx
 MM_API_KEY=xxxx
+SALESFORCE_INSTANCE_URL = xxxx
+SALESFORCE_INSTANCE_SUB_URL = xxxx
+SALESFORCE_JOB_INGEST = xxxx
+SALESFORCE_CLIENT_ID = xxxx
+SALESFORCE_CLIENT_SECRET = xxxx
+SALESFORCE_USERNAME = xxxx
+SALESFORCE_PASSWORD = xxxx
+SALESFORCE_LOGIN_URL = xxxx
 ```
 
 ## Publishing your project

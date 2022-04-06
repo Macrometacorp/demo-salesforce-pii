@@ -27,8 +27,7 @@ export const c8ql = async (
   query: string,
   bindVars: Record<string, unknown> = {},
   isApiKey: boolean = false,
-  federation=`${FEDERATION_URL}`
-) => {
+  federation:string = FEDERATION_URL) => {
   let authorization = "";
   if (isApiKey) {
     authorization = `apikey ${MM_API_KEY}`;

@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import {
   ActionFunction,
   LoaderFunction,
+  redirect,
   useActionData,
   useCatch,
-  redirect,
   useFetchers,
   useLoaderData,
   useOutletContext,
@@ -142,7 +142,7 @@ export default () => {
 
   const actionData = fetchers?.[0]?.data || action;
 
-  const userData = allUserData.filter((user: UserData) => !!user?.name?.trim());
+  const userData = allUserData.filter((user: UserData) => !!user?.name?.trim() && !!user?.Country && !!user?.Country.trim());
   const [activeRow, setActiveRow] = useState("");
   const [isPrivateRegion, setIsPrivateRegion] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -218,9 +218,6 @@ export default () => {
           toastMessage = "Page refreshed successfully";
         }else if (isPurged) {
           toastMessage = "Data Purged Successfully";
-        }
-        else if (!isPurged) {
-          toastMessage = "Data Purged Operation unsuccessful";
         }
          else {
           toastMessage = "Operation successful";

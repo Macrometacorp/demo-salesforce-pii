@@ -170,6 +170,7 @@ export default ({
                 <fetcher.Form
                   action={AppPaths.UserManagement}
                   method="post"
+                 // reloadDocument
                 >
                   <li>
                     <button

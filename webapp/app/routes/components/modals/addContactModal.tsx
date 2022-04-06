@@ -18,6 +18,8 @@ export default ({
   const formEl = useRef(null);
   const fetcher = useFetcher();
 
+  const [createClass, setCreateClass] = useState("btn-info");
+  const [createMessage , setCreateMessage] = useState("Accept");
   useEffect(() => {
     if (fetcher.state === "loading") {
       onModalClose();
@@ -28,6 +30,27 @@ export default ({
     // reset form
     (formEl?.current as any)?.reset();
   }, [showModal]);
+  
+
+
+  useEffect(() => {
+    if (fetcher.state === "loading") {
+      onModalClose();
+    }
+    switch (fetcher.state) {
+      case "submitting":
+        setCreateClass("btn-warning");
+        setCreateMessage("Adding Lead Info...");
+        break;
+      case "loading":
+        setCreateClass("btn-success");
+        setCreateMessage("Lead Info Added");
+        break;
+      default:
+        setCreateClass("btn-info");
+        setCreateMessage("Accept");
+    }
+  }, [fetcher.state]);
 
   return (
     <div
@@ -84,9 +107,7 @@ export default ({
               <span className="label-text">Lead Status</span>
             </label>
             <select className="select select-bordered" name="leadStatus" required>
-              <option disabled selected>
-                Lead Status
-              </option>
+            <option disabled aria-label="None" value="" selected></option>
 
               <option value={"Open - Not Contacted"}>
                 Open - Not Contacted
@@ -289,13 +310,13 @@ export default ({
           </div>
 
           <div className="modal-action">
-            <button
-              className="btn btn-primary"
+          <button
+              className={`btn btn-primary ${createClass}`}
               name={FormButtonActions.Name}
               value={FormButtonActions.Create}
               type="submit"
             >
-              Accept
+           {createMessage}
             </button>
             <a onClick={onModalClose} className="btn">
               Close

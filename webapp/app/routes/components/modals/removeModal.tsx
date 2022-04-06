@@ -30,7 +30,7 @@ export default ({ modalUserDetails, onModalClose }: ModalProps) => {
               name={FormButtonActions.Name}
               value={FormButtonActions.Delete}
             >
-              Yes, I understand.
+              Yes, I understand
             </button>
             <button
               className="btn btn-neutral"

@@ -6,19 +6,13 @@ export default async (request: Request): Promise<object> => {
   try {
     const bulkRecordDeleteResponse = await bulkLeadRecordDelete();
     const bulkRecordDeleteResult = await bulkRecordDeleteResponse.json();
-    const truncateEuCollectionResponse = await c8ql(
+     await c8ql(
       request,
       Fabrics.Eu,
       Queries.TruncateEuCollections(),
       {},
       true,
-      "https://api-gdn-eu-west.paas.macrometa.io"
-    );
-    const truncateEuCollectionResult =
-      await truncateEuCollectionResponse.json();
-    console.log(
-      "EU fabric collections truncated successfully",
-      truncateEuCollectionResult.code
+      "https://api-sturgeon-7f1d6466.paas.macrometa.io"
     );
 
     const truncateGlobalCollectionResponse = await c8ql(
@@ -28,12 +22,7 @@ export default async (request: Request): Promise<object> => {
       {},
       true
     );
-    const truncateGlobalCollectionResult =
       await truncateGlobalCollectionResponse.json();
-    console.log(
-      "Global fabric collections truncated successfully",
-      truncateGlobalCollectionResult.result
-    );
 
     if (bulkRecordDeleteResult.message === "Data Purged") {
       return { isPurged: true };
